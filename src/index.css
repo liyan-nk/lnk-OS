@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+
+
+@theme {
+  --color-bg: var(--bg-color);
+  --color-terminal: var(--terminal-color);
+  --color-muted: var(--muted-color);
+  --color-border: var(--border-color);
+  --color-accent: var(--accent-color);
+  --font-mono: 'Fira Code', 'Fira Mono', 'Courier New', Courier, monospace;
+}
+
+:root {
+  /* Default: Mint */
+  --bg-color: #121417;
+  --terminal-color: #e3e6eb;
+  --muted-color: #707a8a;
+  --border-color: #2b303b;
+  --accent-color: #87cf3e;
+}
+
+:root[data-theme="mint"] {
+  --bg-color: #121417;
+  --terminal-color: #e3e6eb;
+  --muted-color: #707a8a;
+  --border-color: #2b303b;
+  --accent-color: #87cf3e;
+}
+
+:root[data-theme="ubuntu"] {
+  --bg-color: #2c001e;
+  --terminal-color: #ffffff;
+  --muted-color: #aea79f;
+  --border-color: #4f193f;
+  --accent-color: #e95420;
+}
+
+:root[data-theme="matrix"] {
+  --bg-color: #050705;
+  --terminal-color: #00ff33;
+  --muted-color: #006611;
+  --border-color: #003300;
+  --accent-color: #39ff14;
+}
+
+:root[data-theme="amber"] {
+  --bg-color: #0f0a06;
+  --terminal-color: #ffb000;
+  --muted-color: #805500;
+  --border-color: #331a00;
+  --accent-color: #ffcc00;
+}
+
+/* Retro text glowing styles for glowing terminal themes */
+:root[data-theme="matrix"] body,
+:root[data-theme="matrix"] pre,
+:root[data-theme="matrix"] span,
+:root[data-theme="matrix"] div,
+:root[data-theme="matrix"] button {
+  text-shadow: 0 0 5px rgba(0, 255, 51, 0.45);
+}
+
+:root[data-theme="amber"] body,
+:root[data-theme="amber"] pre,
+:root[data-theme="amber"] span,
+:root[data-theme="amber"] div,
+:root[data-theme="amber"] button {
+  text-shadow: 0 0 5px rgba(255, 176, 0, 0.45);
+}
+
+/* Custom Base Elements */
+body {
+  background-color: var(--bg-color);
+  color: var(--terminal-color);
+  font-family: var(--font-mono);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Custom selection styling */
+::selection {
+  background-color: var(--accent-color);
+  color: var(--bg-color);
+}
+
+/* Custom scrollbars to match terminal themes */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-color);
+}
+
+/* Scroll behavior smooth for section jumps */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom True Terminal Block Cursor Blink */
+@keyframes terminal-cursor-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.animate-terminal-blink {
+  animation: terminal-cursor-blink 1.0s step-end infinite;
+}
+

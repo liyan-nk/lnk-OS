@@ -1,0 +1,123 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { getAutocomplete } from '../../hooks/useTerminal';
+
+interface InputLineProps {
+  onSubmit: (input: string) => void;
+  onTabComplete: (input: string) => string | null;
+}
+
+/**
+ * Custom console input line with custom cursor styling:
+ * Solid blinking cursor when focused, hollow box outline when blurred.
+ */
+export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete }) => {
+  const [inputValue, setInputValue] = useState('');
+  const [isFocused, setIsFocused] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const ghostSuggestion = getAutocomplete(inputValue).ghostSuffix;
+
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      // Do not steal focus if user is currently selecting text
+      if (window.getSelection()?.toString()) {
+        return;
+      }
+      // Do not steal focus if user clicked an interactive element
+      const target = e.target as HTMLElement;
+      if (target.closest('button, a, input, select, textarea')) {
+        return;
+      }
+      inputRef.current?.focus();
+    };
+    document.addEventListener('click', handleGlobalClick);
+    inputRef.current?.focus(); // Initial focus
+
+    return () => {
+      document.removeEventListener('click', handleGlobalClick);
+    };
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      
+      const { completedValue } = getAutocomplete(inputValue);
+      if (completedValue) {
+        setInputValue(completedValue);
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.selectionStart = inputRef.current.selectionEnd = completedValue.length;
+          }
+        }, 0);
+        return;
+      }
+
+      const completed = onTabComplete(inputValue);
+      if (completed) {
+        setInputValue(completed);
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.selectionStart = inputRef.current.selectionEnd = completed.length;
+          }
+        }, 0);
+      }
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = inputValue.trim();
+    if (trimmed) {
+      onSubmit(trimmed);
+      setInputValue('');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex items-center w-full font-mono text-terminal mt-1">
+      <span className="text-accent mr-2 shrink-0">visitor@lnk-os:~$</span>
+      <div className="relative flex-grow flex items-center">
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          onKeyDown={handleKeyDown}
+          className="w-full bg-transparent outline-hidden border-none text-terminal font-mono caret-transparent relative z-10"
+          autoFocus
+          autoCapitalize="none"
+          autoComplete="off"
+          spellCheck="false"
+          aria-label="Terminal command input"
+        />
+        {/* Custom cursor overlay */}
+        <div className="absolute left-0 top-0 bottom-0 pointer-events-none flex items-center z-0 font-mono text-sm leading-relaxed">
+          {/* Relative wrapper for invisible typed text and absolute cursor */}
+          <span className="relative flex items-center">
+            <span className="text-terminal invisible whitespace-pre">{inputValue}</span>
+            
+            {/* Monospace block cursor positioned exactly at the end of the typed text */}
+            <span 
+              className={`absolute top-1/2 -translate-y-1/2 w-[1ch] h-[1.2em] ${
+                isFocused 
+                  ? 'bg-terminal/90 animate-terminal-blink' 
+                  : 'border border-terminal bg-transparent'
+              }`}
+              style={{ left: '100%' }}
+            />
+          </span>
+
+          {/* Ghost Suggestion suffix rendered next to it with no gap */}
+          {ghostSuggestion && (
+            <span className="text-terminal/35 font-mono select-none whitespace-pre">
+              {ghostSuggestion}
+            </span>
+          )}
+        </div>
+      </div>
+    </form>
+  );
+};
