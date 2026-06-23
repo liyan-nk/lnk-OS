@@ -509,7 +509,7 @@ export const commandRegistry: Record<string, () => React.ReactNode> = {
             <p><span className="text-[#c5a059]/70">MOTTO       :</span> Forged in Silence</p>
           </div>
           <p className="text-xs text-[#78909c]/60 pt-1">
-            Type <CommandLink command="resume">resume</CommandLink> to print personnel dossier or <CommandLink command="projects">projects</CommandLink> to view operational logs.
+            Type <CommandLink command="resume">resume</CommandLink> to print personnel dossier, <CommandLink command="projects">projects</CommandLink> / <CommandLink command="archives">archives</CommandLink> to view operational logs.
           </p>
         </div>
       );
@@ -789,7 +789,7 @@ export const commandRegistry: Record<string, () => React.ReactNode> = {
             <span className="text-[#c5a059] font-bold block mb-1.5 uppercase tracking-wider text-[10px] border-b border-[#c5a059]/20 pb-0.5">// Classified Dossiers</span>
             <div className="space-y-1 pl-2">
               <p>  <CommandLink command="about">about</CommandLink>       - Psychological & technical asset dossier</p>
-              <p>  <CommandLink command="projects">projects</CommandLink>    - Operational logs database</p>
+              <p>  <CommandLink command="projects">projects</CommandLink> / <CommandLink command="archives">archives</CommandLink> - Operational logs database</p>
               <p>  <CommandLink command="skills">skills</CommandLink>      - Capability analysis reports</p>
               <p>  <CommandLink command="resume">resume</CommandLink>      - Personnel resume credentials file</p>
               <p>  <CommandLink command="journey">journey</CommandLink>     - Temporal mission trace log</p>
@@ -800,7 +800,7 @@ export const commandRegistry: Record<string, () => React.ReactNode> = {
             <span className="text-[#c5a059] font-bold block mb-1.5 uppercase tracking-wider text-[10px] border-b border-[#c5a059]/20 pb-0.5">// System</span>
             <div className="space-y-1 pl-2">
               <p>  <CommandLink command="neofetch">neofetch</CommandLink>   - Operator identity & grid diagnostics</p>
-              <p>  <CommandLink command="alfred">alfred</CommandLink>     - Secure connection teardown & exit</p>
+              <p>  <CommandLink command="alfred">alfred</CommandLink> / <CommandLink command="wayne">wayne</CommandLink>     - Secure connection teardown & exit</p>
             </div>
           </div>
         </div>

@@ -42,7 +42,7 @@ export const GOTHAM_WELCOME_ITEM: HistoryItem = {
       <div className="text-xs pt-1 select-text">
         Gotham Protocol session established successfully.
         <br />
-        Type <span className="text-[#c5a059] font-semibold border-b border-[#c5a059]/20">intel</span> to view classified protocol access.
+        Type <CommandLink command="intel">intel</CommandLink> to view classified protocol access.
       </div>
     </div>
   )
@@ -58,7 +58,9 @@ export const ALIAS_MAP: Record<string, string> = {
   mail: 'contact',
   education: 'journey',
   cv: 'resume',
-  resistance: 'opposition'
+  resistance: 'opposition',
+  wayne: 'alfred',
+  archives: 'projects'
 };
 
 export const PRIMARY_COMMANDS = [
@@ -90,7 +92,7 @@ export function getAutocomplete(input: string, isGotham: boolean = false): Autoc
   const trimmed = input.trim().toLowerCase();
   
   const activeCommands = isGotham
-    ? [...PRIMARY_COMMANDS, 'intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred']
+    ? [...PRIMARY_COMMANDS, 'intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred', 'wayne', 'archives']
     : PRIMARY_COMMANDS;
 
   if (!input) {
@@ -176,7 +178,7 @@ function getClosestMatches(input: string, isGotham: boolean = false): string[] {
   let matches: string[] = [];
 
   const activeCommands = isGotham
-    ? [...PRIMARY_COMMANDS, 'intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred']
+    ? [...PRIMARY_COMMANDS, 'intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred', 'wayne', 'archives']
     : PRIMARY_COMMANDS;
 
   for (const cmd of activeCommands) {
@@ -375,7 +377,7 @@ export const useTerminal = () => {
     }
 
     // Hide Gotham-only commands if normal mode
-    const GOTHAM_ONLY_COMMANDS = ['intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred'];
+    const GOTHAM_ONLY_COMMANDS = ['intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred', 'wayne', 'archives'];
     if (GOTHAM_ONLY_COMMANDS.includes(resolvedCommand) && !activeProtocol) {
       const suggestions = getClosestMatches(command, false);
       let outputResult: React.ReactNode;
@@ -638,6 +640,7 @@ export const useTerminal = () => {
                     <div className="flex flex-wrap gap-x-3 gap-y-1">
                       <CommandLink command="about">about</CommandLink>
                       <CommandLink command="projects">projects</CommandLink>
+                      <CommandLink command="archives">archives</CommandLink>
                       <CommandLink command="skills">skills</CommandLink>
                       <CommandLink command="resume">resume</CommandLink>
                       <CommandLink command="journey">journey</CommandLink>
@@ -649,6 +652,7 @@ export const useTerminal = () => {
                     <div className="flex flex-wrap gap-x-3 gap-y-1">
                       <CommandLink command="neofetch">neofetch</CommandLink>
                       <CommandLink command="alfred">alfred</CommandLink>
+                      <CommandLink command="wayne">wayne</CommandLink>
                     </div>
                   </div>
                 </div>
