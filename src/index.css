@@ -192,22 +192,47 @@ html {
 }
 
 .animate-grid-drift {
-  animation: ambient-grid-drift 25s linear infinite;
+  animation: ambient-grid-drift 16s linear infinite;
 }
 
 /* Ambient glow breathing animation */
 @keyframes ambient-glow-pulse {
   0%, 100% {
-    opacity: 0.15;
+    opacity: 0.25;
     transform: scale(0.95);
   }
   50% {
-    opacity: 0.22;
+    opacity: 0.38;
     transform: scale(1.05);
   }
 }
 
 .animate-glow-pulse {
-  animation: ambient-glow-pulse 10s ease-in-out infinite;
+  animation: ambient-glow-pulse 8s ease-in-out infinite;
 }
+
+/* Hide default cursor on desktop viewports when custom cursor is active */
+@media (pointer: fine) {
+  body:not(.takeover-glitch-active) {
+    cursor: none !important;
+  }
+  body:not(.takeover-glitch-active) button,
+  body:not(.takeover-glitch-active) a,
+  body:not(.takeover-glitch-active) input,
+  body:not(.takeover-glitch-active) textarea,
+  body:not(.takeover-glitch-active) select,
+  body:not(.takeover-glitch-active) [role="button"],
+  body:not(.takeover-glitch-active) .cursor-pointer {
+    cursor: none !important;
+  }
+}
+
+/* Support for users with prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-grid-drift,
+  .animate-glow-pulse {
+    animation: none !important;
+  }
+}
+
 
