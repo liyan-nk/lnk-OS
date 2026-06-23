@@ -290,6 +290,7 @@ export const useTerminal = () => {
         setTimeout(() => {
           setTakeoverGlitch(false);
           setProtocolBooting(true);
+          setActiveProtocol(triggeredProtocol);
           localStorage.setItem('lnk-os-secret-gotham-unlocked', 'true');
         }, 1200);
 
@@ -615,7 +616,6 @@ export const useTerminal = () => {
 
   const finishGothamBoot = useCallback(() => {
     setProtocolBooting(false);
-    setActiveProtocol(GOTHAM_PROTOCOL);
     sessionStorage.setItem('lnk-os-gotham-active', 'true');
     setActiveTheme('gotham');
   }, []);
