@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-
-
 @theme {
   --color-bg: var(--bg-color);
   --color-terminal: var(--terminal-color);
@@ -56,7 +54,7 @@
 :root[data-theme="gotham"] {
   --bg-color: #060a12;
   --terminal-color: #78909c;
-  --muted-color: #37474f;
+  --muted-color: #1e2d3d;
   --border-color: #121d2d;
   --accent-color: #c5a059;
 }
@@ -141,3 +139,44 @@ html {
   animation: terminal-cursor-blink 1.0s step-end infinite;
 }
 
+/* Glitch distortion animations for the takeover screen */
+@keyframes takeover-glitch-shake {
+  0% { transform: translate(0); }
+  20% { transform: translate(-3px, 2px); filter: hue-rotate(90deg); }
+  40% { transform: translate(3px, -1px); filter: contrast(150%); }
+  60% { transform: translate(-2px, -2px); }
+  80% { transform: translate(2px, 1px); filter: invert(10%); }
+  100% { transform: translate(0); }
+}
+
+@keyframes glitch-noise {
+  0% { clip-path: inset(40% 0 61% 0); }
+  20% { clip-path: inset(92% 0 1% 0); }
+  40% { clip-path: inset(15% 0 80% 0); }
+  60% { clip-path: inset(80% 0 5% 0); }
+  80% { clip-path: inset(3% 0 92% 0); }
+  100% { clip-path: inset(60% 0 35% 0); }
+}
+
+.takeover-glitch-active {
+  animation: takeover-glitch-shake 0.12s linear infinite;
+}
+
+.takeover-glitch-noise {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(197, 160, 89, 0.08) 0px,
+    rgba(197, 160, 89, 0.08) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  animation: glitch-noise 0.8s steps(4) infinite;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 9999;
+}

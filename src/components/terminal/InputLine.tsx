@@ -1,30 +1,29 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getAutocomplete } from '../../hooks/useTerminal';
+import type { SecretProtocol } from '../../utils/protocolRegistry';
 
 interface InputLineProps {
   onSubmit: (input: string) => void;
   onTabComplete: (input: string) => string | null;
-  isGotham?: boolean;
+  activeProtocol?: SecretProtocol | null;
 }
 
 /**
  * Custom console input line with custom cursor styling:
  * Solid blinking cursor when focused, hollow box outline when blurred.
  */
-export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, isGotham = false }) => {
+export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, activeProtocol = null }) => {
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const ghostSuggestion = getAutocomplete(inputValue, isGotham).ghostSuffix;
+  const ghostSuggestion = getAutocomplete(inputValue, !!activeProtocol).ghostSuffix;
 
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
-      // Do not steal focus if user is currently selecting text
       if (window.getSelection()?.toString()) {
         return;
       }
-      // Do not steal focus if user clicked an interactive element
       const target = e.target as HTMLElement;
       if (target.closest('button, a, input, select, textarea')) {
         return;
@@ -32,7 +31,7 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, i
       inputRef.current?.focus();
     };
     document.addEventListener('click', handleGlobalClick);
-    inputRef.current?.focus(); // Initial focus
+    inputRef.current?.focus();
 
     return () => {
       document.removeEventListener('click', handleGlobalClick);
@@ -43,7 +42,7 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, i
     if (e.key === 'Tab') {
       e.preventDefault();
       
-      const { completedValue } = getAutocomplete(inputValue, isGotham);
+      const { completedValue } = getAutocomplete(inputValue, !!activeProtocol);
       if (completedValue) {
         setInputValue(completedValue);
         setTimeout(() => {
@@ -77,7 +76,7 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, i
 
   return (
     <form onSubmit={handleSubmit} className="flex items-center w-full font-mono text-terminal mt-1">
-      <span className="text-accent mr-2 shrink-0">{isGotham ? 'batman@gotham:~$' : 'visitor@lnk-os:~$'}</span>
+      <span className="text-accent mr-2 shrink-0">{activeProtocol ? activeProtocol.prompt : 'visitor@lnk-os:~$'}</span>
       <div className="relative flex-grow flex items-center">
         <input
           ref={inputRef}
@@ -96,11 +95,8 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, i
         />
         {/* Custom cursor overlay */}
         <div className="absolute left-0 top-0 bottom-0 pointer-events-none flex items-center z-0 font-mono text-sm leading-relaxed">
-          {/* Relative wrapper for invisible typed text and absolute cursor */}
           <span className="relative flex items-center">
             <span className="text-terminal invisible whitespace-pre">{inputValue}</span>
-            
-            {/* Monospace block cursor positioned exactly at the end of the typed text */}
             <span 
               className={`absolute top-1/2 -translate-y-1/2 w-[1ch] h-[1.2em] ${
                 isFocused 
@@ -111,7 +107,6 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, i
             />
           </span>
 
-          {/* Ghost Suggestion suffix rendered next to it with no gap */}
           {ghostSuggestion && (
             <span className="text-terminal/35 font-mono select-none whitespace-pre">
               {ghostSuggestion}

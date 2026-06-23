@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import type { SecretProtocol } from '../../utils/protocolRegistry';
 
 interface GothamBootScreenProps {
   onComplete: () => void;
+  protocol: SecretProtocol;
 }
 
 const BAT_LOGO = `
@@ -15,25 +17,15 @@ const BAT_LOGO = `
               '---'
 `;
 
-const BOOT_LOGS = [
-  "WAYNE ENTERPRISES SECURE TERMINAL v8.12",
-  "────────────────────────────────────────",
-  "Initializing surveillance network... [ OK ]",
-  "Connecting Batcomputer mainframe... [ OK ]",
-  "Monitoring Gotham City sector grids... [ OK ]",
-  "Scanning Arkham Asylum database... [ OK ]",
-  "Threat assessment... CRITICAL",
-];
-
-export const GothamBootScreen: React.FC<GothamBootScreenProps> = ({ onComplete }) => {
+export const GothamBootScreen: React.FC<GothamBootScreenProps> = ({ onComplete, protocol }) => {
   const [logs, setLogs] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
-  const [phase, setPhase] = useState<'lightning' | 'boot' | 'splash'>('lightning');
+  const [phase, setPhase] = useState<'lightning' | 'boot' | 'startup'>('lightning');
   const [flash, setFlash] = useState(false);
+  const [visibleStartupLines, setVisibleStartupLines] = useState<string[]>([]);
 
   // 1. Initial Lightning Flash
   useEffect(() => {
-    // Trigger double lightning flash on mount
     setFlash(true);
     const firstOff = setTimeout(() => setFlash(false), 150);
     const secondOn = setTimeout(() => setFlash(true), 250);
@@ -55,25 +47,24 @@ export const GothamBootScreen: React.FC<GothamBootScreenProps> = ({ onComplete }
 
     let logIdx = 0;
     const logInterval = setInterval(() => {
-      if (logIdx < BOOT_LOGS.length) {
-        setLogs((prev) => [...prev, BOOT_LOGS[logIdx]]);
+      if (logIdx < protocol.bootSequence.logs.length) {
+        setLogs((prev) => [...prev, protocol.bootSequence.logs[logIdx]]);
         logIdx++;
       } else {
         clearInterval(logInterval);
       }
-    }, 350);
+    }, 300);
 
-    // Subtle ambient flash during boot logs
     const ambientFlash = setTimeout(() => {
       setFlash(true);
       setTimeout(() => setFlash(false), 100);
-    }, 1500);
+    }, 1200);
 
     return () => {
       clearInterval(logInterval);
       clearTimeout(ambientFlash);
     };
-  }, [phase]);
+  }, [phase, protocol.bootSequence.logs]);
 
   // 3. Progress Bar Animation
   useEffect(() => {
@@ -90,27 +81,39 @@ export const GothamBootScreen: React.FC<GothamBootScreenProps> = ({ onComplete }
         if (computed >= 100) {
           clearInterval(progressInterval);
           setTimeout(() => {
-            setPhase('splash');
-          }, 400);
+            setPhase('startup');
+          }, 300);
         }
       }, 30);
 
       return () => clearInterval(progressInterval);
-    }, 1500); // Start loading bar after logs start showing
+    }, 1200);
 
     return () => clearTimeout(startDelay);
   }, [phase]);
 
-  // 4. Splash Timer Transition
+  // 4. Startup Sequence Sequential Animation
   useEffect(() => {
-    if (phase !== 'splash') return;
+    if (phase !== 'startup') return;
 
-    const transitionTimer = setTimeout(() => {
-      onComplete();
-    }, 2200); // Show splash for 2.2 seconds
+    let currentLine = 0;
+    const lines = protocol.startupSequence;
 
-    return () => clearTimeout(transitionTimer);
-  }, [phase, onComplete]);
+    const showNextLine = () => {
+      if (currentLine < lines.length) {
+        setVisibleStartupLines((prev) => [...prev, lines[currentLine]]);
+        currentLine++;
+        setTimeout(showNextLine, 250); // Animate next line after 250ms
+      } else {
+        // All lines displayed, hold for 1.5s and trigger complete
+        setTimeout(() => {
+          onComplete();
+        }, 1500);
+      }
+    };
+
+    showNextLine();
+  }, [phase, protocol.startupSequence, onComplete]);
 
   const renderProgressBar = () => {
     const totalBars = 20;
@@ -121,26 +124,35 @@ export const GothamBootScreen: React.FC<GothamBootScreenProps> = ({ onComplete }
 
   return (
     <div className="fixed inset-0 bg-[#060a12] text-[#78909c] font-mono flex flex-col justify-center items-center p-6 z-50 select-none">
+      {/* Glitch Overlay scanlines */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_4px,3px_100%] pointer-events-none opacity-40 z-10" />
+
       {/* Lightning Flash Overlay */}
       <div 
         className={`fixed inset-0 bg-white pointer-events-none transition-opacity duration-75 z-55 ${
-          flash ? 'opacity-90' : 'opacity-0'
+          flash ? 'opacity-85' : 'opacity-0'
         }`} 
       />
 
-      <div className="w-full max-w-lg space-y-6">
-        {phase === 'splash' ? (
-          <div className="text-center space-y-5 animate-pulse">
-            <h1 className="text-[#c5a059] font-bold text-2xl tracking-widest drop-shadow-[0_0_12px_rgba(197,160,89,0.4)]">
-              GOTHAM PROTOCOL ACTIVE
-            </h1>
-            <div className="space-y-1 text-sm text-[#78909c]/90">
-              <p>Crime doesn't sleep.</p>
-              <p>Neither do you.</p>
+      <div className="w-full max-w-lg space-y-6 relative z-20">
+        {phase === 'startup' ? (
+          <div className="space-y-4 border border-[#c5a059]/30 bg-[#0c121e]/40 p-6 rounded-sm shadow-[0_0_20px_rgba(197,160,89,0.1)]">
+            <div className="text-[10px] text-accent/50 uppercase tracking-widest mb-2 font-semibold">
+              // CLASSIFIED // LEVEL 7 CLEARANCE REQUIRED //
             </div>
-            <p className="text-xs text-[#c5a059]/75 pt-3">
-              Type <span className="border border-[#c5a059]/30 px-1.5 py-0.5 rounded-xs font-semibold">[mission]</span> to receive your assignment.
-            </p>
+            <div className="space-y-2 text-sm font-semibold">
+              {visibleStartupLines.map((line, idx) => (
+                <div 
+                  key={idx} 
+                  className={`flex items-center ${
+                    idx === 0 ? 'text-[#c5a059] font-bold text-base border-b border-[#c5a059]/20 pb-1 mb-2' : 'text-[#78909c]'
+                  }`}
+                >
+                  <span className="mr-2">&gt;</span>
+                  <span>{line}</span>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
@@ -150,7 +162,10 @@ export const GothamBootScreen: React.FC<GothamBootScreenProps> = ({ onComplete }
             </pre>
 
             {/* Diagnostic Logs */}
-            <div className="h-40 flex flex-col justify-end space-y-1 text-xs text-[#78909c]/80 border-t border-b border-[#121d2d]/60 py-3">
+            <div className="h-40 flex flex-col justify-end space-y-1.5 text-xs text-[#78909c]/80 border-t border-b border-[#121d2d]/60 py-3 font-mono">
+              <div className="text-[10px] text-accent/40 uppercase tracking-wider mb-1 font-bold">
+                {protocol.bootSequence.title}
+              </div>
               {logs.map((log, idx) => (
                 <div key={idx} className="flex items-center">
                   <span className="text-[#c5a059] mr-1.5">&gt;</span>
@@ -162,7 +177,7 @@ export const GothamBootScreen: React.FC<GothamBootScreenProps> = ({ onComplete }
             {/* Progress Bar */}
             {progress > 0 && (
               <div className="space-y-1">
-                <div className="text-xs text-[#78909c]/60">Batcomputer uplink status:</div>
+                <div className="text-xs text-[#78909c]/60">Decryption & Uplink status:</div>
                 <div className="font-mono text-sm text-[#c5a059]/90">
                   {renderProgressBar()}
                 </div>

@@ -2,6 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { parseCommand } from '../utils/commandParser';
 import { commandRegistry } from './../utils/commandRegistry';
 import { CommandLink } from '../components/common/CommandLink';
+import type { SecretProtocol } from '../utils/protocolRegistry';
+import { GOTHAM_PROTOCOL, findProtocolByTrigger } from '../utils/protocolRegistry';
 
 export interface HistoryItem {
   id: string;
@@ -22,6 +24,24 @@ export const WELCOME_ITEM: HistoryItem = {
         Welcome visitor. Command loop interpreter initialized successfully.
         <br />
         Type <CommandLink command="help">help</CommandLink> to view the command dictionary interface.
+      </div>
+    </div>
+  )
+};
+
+export const GOTHAM_WELCOME_ITEM: HistoryItem = {
+  id: 'gotham-welcome-log',
+  command: '',
+  output: (
+    <div className="space-y-1 text-[#78909c]">
+      <div className="text-[#c5a059] font-bold text-base">WAYNE ENTERPRISES SECURE PORTAL v8.12</div>
+      <div className="text-[10px] text-[#c5a059]/40 uppercase tracking-widest font-semibold">// CLASSIFIED // WAYNE ENTERPRISES INTERNAL USE ONLY //</div>
+      <div>Uplink   : Brother Eye Satellite (Active)</div>
+      <div>------------------------------------------------</div>
+      <div className="text-xs pt-1 select-text">
+        Gotham Protocol session established successfully.
+        <br />
+        Type <span className="text-[#c5a059] font-semibold border-b border-[#c5a059]/20">help</span> to view available system options.
       </div>
     </div>
   )
@@ -82,7 +102,6 @@ export function getAutocomplete(input: string, isGotham: boolean = false): Autoc
   const spaceIdx = input.indexOf(' ');
 
   if (spaceIdx === -1) {
-    // 1. Root command completion
     const matches = activeCommands.filter(cmd => cmd.startsWith(trimmed));
     if (matches.length === 1) {
       return {
@@ -97,7 +116,6 @@ export function getAutocomplete(input: string, isGotham: boolean = false): Autoc
       multipleMatches: matches.length > 1 ? matches : []
     };
   } else {
-    // 2. Command argument completion
     const cmdToken = input.slice(0, spaceIdx).toLowerCase();
     const argInput = input.slice(spaceIdx + 1);
     const resolvedCmd = ALIAS_MAP[cmdToken] || cmdToken;
@@ -176,18 +194,58 @@ function getClosestMatches(input: string, isGotham: boolean = false): string[] {
   return [];
 }
 
-/**
- * State hook containing terminal outputs, active input submissions,
- * system clearing/resetting functions, kernel booting states, and local theme configuration.
- */
+export const GOTHAM_MISSIONS = [
+  {
+    id: "OP-NIGHTFALL",
+    target: "Joker",
+    priority: "CRITICAL",
+    location: "Gotham Amusement Mile",
+    details: "Surveillance reports joker gas canisters hidden under the warehouse docks. Secure the perimeter immediately.",
+    action: "Deploy batmobile and disable ventilation systems.",
+    equipment: ["✓ Grapple Gun", "✓ Smoke Pellets"]
+  },
+  {
+    id: "OP-FEARLESS",
+    target: "Scarecrow",
+    priority: "CRITICAL",
+    location: "Arkham Asylum Sewer Outlets",
+    details: "Anomalous fear toxin dispersion detected in water supply grid 3-B. Pinpoint the distribution node.",
+    action: "Equip rebreather and trace chemical residue.",
+    equipment: ["✓ Rebreather", "✓ Cryptographic Sequencer"]
+  },
+  {
+    id: "OP-ENIGMA",
+    target: "Riddler",
+    priority: "HIGH",
+    location: "Gotham City Cathedral Tower",
+    details: "Cryptographic relay intercepting police communications. Decrypt puzzle sequence on frequencies 88.4 / 92.1.",
+    action: "Establish remote mainframe tap to counter-hack.",
+    equipment: ["✓ Cryptographic Sequencer", "✓ Batarang"]
+  },
+  {
+    id: "OP-ICEBOX",
+    target: "Mr. Freeze",
+    priority: "HIGH",
+    location: "GothCorp Cryo-Gen Labs",
+    details: "Sub-zero energy surge threatening the city grid. Internal temperature dropped to -50C.",
+    action: "Activate thermal shielding armor modules.",
+    equipment: ["✓ Thermal Armor Upgrade", "✓ Grapple Gun"]
+  }
+];
+
 export const useTerminal = () => {
-  const [history, setHistory] = useState<HistoryItem[]>([WELCOME_ITEM]);
+  const [normalHistory, setNormalHistory] = useState<HistoryItem[]>([WELCOME_ITEM]);
+  const [gothamHistory, setGothamHistory] = useState<HistoryItem[]>([GOTHAM_WELCOME_ITEM]);
   const [booting, setBooting] = useState<boolean>(true);
   
-  const [gothamMode, setGothamMode] = useState<boolean>(() => {
-    return sessionStorage.getItem('lnk-os-gotham-active') === 'true';
+  const [activeProtocol, setActiveProtocol] = useState<SecretProtocol | null>(() => {
+    const isGothamActive = sessionStorage.getItem('lnk-os-gotham-active') === 'true';
+    return isGothamActive ? GOTHAM_PROTOCOL : null;
   });
-  const [gothamBooting, setGothamBooting] = useState<boolean>(false);
+
+  const [takeoverGlitch, setTakeoverGlitch] = useState<boolean>(false);
+  const [protocolBooting, setProtocolBooting] = useState<boolean>(false);
+  const [activeMissionIndex, setActiveMissionIndex] = useState<number>(0);
 
   const [activeTheme, setActiveTheme] = useState<ThemeType>(() => {
     const isGotham = sessionStorage.getItem('lnk-os-gotham-active') === 'true';
@@ -212,50 +270,60 @@ export const useTerminal = () => {
     const { command, args } = parseCommand(trimmedInput);
     const resolvedCommand = ALIAS_MAP[command] || command;
 
-    // Gotham Protocol Decryption Trigger
-    if (resolvedCommand === 'batman') {
-      const isFirstTime = localStorage.getItem('lnk-os-secret-gotham-unlocked') !== 'true';
-      setHistory((prev) => [
-        ...prev,
-        {
-          id: Math.random().toString(36).substring(2, 9),
-          command: trimmedInput,
-          output: (
-            <div className="space-y-1.5 font-mono">
-              <div className="text-[#c5a059]">Identity confirmed.</div>
-              {isFirstTime && (
-                <div className="text-accent font-bold text-xs animate-pulse border border-accent/20 px-2.5 py-1 bg-accent/5 rounded-xs inline-block">
-                  Secret Discovered: Gotham Protocol Unlocked.
-                </div>
-              )}
-            </div>
-          )
+    const historySetter = activeProtocol ? setGothamHistory : setNormalHistory;
+
+    // Generic Secret Protocol Decryption Trigger (takeover sequence)
+    if (!activeProtocol) {
+      const triggeredProtocol = findProtocolByTrigger(resolvedCommand);
+      if (triggeredProtocol) {
+        setTakeoverGlitch(true);
+
+        try {
+          const audio = new Audio('/audio/oracle_activation.mp3');
+          audio.play().catch((err) => {
+            console.warn('Audio play failed or blocked:', err);
+          });
+        } catch (err) {
+          console.warn('Audio failed to initialize:', err);
         }
-      ]);
-      
-      setTimeout(() => {
-        setHistory((prev) => [
+
+        setTimeout(() => {
+          setTakeoverGlitch(false);
+          setProtocolBooting(true);
+          localStorage.setItem('lnk-os-secret-gotham-unlocked', 'true');
+        }, 1200);
+
+        return;
+      }
+    }
+
+    // Lockdown Intercepts in Gotham mode
+    if (activeProtocol) {
+      if (activeProtocol.lockedCommands.includes(resolvedCommand)) {
+        const output = (
+          <div className="text-red-500 font-mono text-sm leading-relaxed border border-red-500/20 bg-red-500/5 p-3 rounded-xs my-1 select-text">
+            <p className="font-bold uppercase tracking-wider">// CLASSIFIED // WAYNE ENTERPRISES SECURITY OVERRIDE //</p>
+            <p className="text-xs mt-1 text-[#78909c]/90">
+              Wayne Enterprises security lockdown active. Theme controls unavailable during secure sessions.
+            </p>
+          </div>
+        );
+        setGothamHistory((prev) => [
           ...prev,
           {
             id: Math.random().toString(36).substring(2, 9),
-            command: '',
-            output: <div className="text-[#c5a059] font-bold">Welcome back, Bruce.</div>
+            command: trimmedInput,
+            output: output
           }
         ]);
-      }, 700);
-
-      setTimeout(() => {
-        setGothamBooting(true);
-        localStorage.setItem('lnk-os-secret-gotham-unlocked', 'true');
-      }, 1400);
-
-      return;
+        return;
+      }
     }
 
-    // Gotham Protocol Exit Intercept
+    // exit override
     if (resolvedCommand === 'exit') {
-      if (gothamMode) {
-        setHistory((prev) => [
+      if (activeProtocol?.id === 'gotham') {
+        setGothamHistory((prev) => [
           ...prev,
           {
             id: Math.random().toString(36).substring(2, 9),
@@ -267,33 +335,64 @@ export const useTerminal = () => {
       }
     }
 
-    // Gotham Protocol Alfred Exit
-    if (resolvedCommand === 'alfred') {
-      if (gothamMode) {
-        setHistory((prev) => [
+    // Alfred exit flow (cinematic shutdown)
+    if (resolvedCommand === 'alfred' && activeProtocol?.id === 'gotham') {
+      setGothamHistory((prev) => [
+        ...prev,
+        {
+          id: Math.random().toString(36).substring(2, 9),
+          command: trimmedInput,
+          output: <div className="text-[#c5a059] font-bold">Very good, sir.</div>
+        }
+      ]);
+
+      setTimeout(() => {
+        setGothamHistory((prev) => [
           ...prev,
           {
             id: Math.random().toString(36).substring(2, 9),
-            command: trimmedInput,
-            output: <div className="text-[#c5a059]">Very good, sir. Returning to reality...</div>
+            command: '',
+            output: <div className="text-[#c5a059]/80 font-mono">Terminating Gotham Protocol...</div>
           }
         ]);
+      }, 400);
 
-        setTimeout(() => {
-          setGothamMode(false);
-          sessionStorage.removeItem('lnk-os-gotham-active');
-          const normalTheme = localStorage.getItem('lnk-os-theme') || 'mint';
-          setActiveTheme(normalTheme as ThemeType);
-          setHistory([WELCOME_ITEM]); // Reset back to home screen
-        }, 1200);
+      setTimeout(() => {
+        setGothamHistory((prev) => [
+          ...prev,
+          {
+            id: Math.random().toString(36).substring(2, 9),
+            command: '',
+            output: <div className="text-[#c5a059]/60 font-mono">Disconnecting Batcomputer...</div>
+          }
+        ]);
+      }, 800);
 
-        return;
-      }
+      setTimeout(() => {
+        setGothamHistory((prev) => [
+          ...prev,
+          {
+            id: Math.random().toString(36).substring(2, 9),
+            command: '',
+            output: <div className="text-[#c5a059]/40 font-mono">Restoring civilian interface...</div>
+          }
+        ]);
+      }, 1200);
+
+      setTimeout(() => {
+        setActiveProtocol(null);
+        sessionStorage.removeItem('lnk-os-gotham-active');
+        const normalTheme = localStorage.getItem('lnk-os-theme') || 'mint';
+        setActiveTheme(normalTheme as ThemeType);
+        setGothamHistory([GOTHAM_WELCOME_ITEM]); // reset
+      }, 1800);
+
+      return;
     }
 
-    // If Gotham Mode is NOT active, intercept and hide Gotham-only commands
+    // Hide Gotham-only commands if normal mode
     const GOTHAM_ONLY_COMMANDS = ['mission', 'villains', 'gadgets', 'batcomputer', 'alfred'];
-    if (GOTHAM_ONLY_COMMANDS.includes(resolvedCommand) && !gothamMode) {
+    if (GOTHAM_ONLY_COMMANDS.includes(resolvedCommand) && !activeProtocol) {
       const suggestions = getClosestMatches(command, false);
       let outputResult: React.ReactNode;
       if (suggestions.length > 0) {
@@ -308,20 +407,14 @@ export const useTerminal = () => {
                 ))}
               </div>
             </div>
-            <p className="text-muted text-xs">
-              Type <CommandLink command="help">help</CommandLink> to view available commands.
-            </p>
           </div>
         );
       } else {
         outputResult = (
-          <div className="text-red-500">
-            Command not found: '{trimmedInput}'. Type <CommandLink command="help">help</CommandLink> for available commands.
-          </div>
+          <div className="text-red-500">Command not found: '{trimmedInput}'.</div>
         );
       }
-
-      setHistory((prev) => [
+      setNormalHistory((prev) => [
         ...prev,
         {
           id: Math.random().toString(36).substring(2, 9),
@@ -333,21 +426,20 @@ export const useTerminal = () => {
     }
 
     if (resolvedCommand === 'clear') {
-      setHistory([]);
+      historySetter([]);
       return;
     }
 
     if (resolvedCommand === 'home') {
-      setHistory([WELCOME_ITEM]);
+      historySetter(activeProtocol ? [GOTHAM_WELCOME_ITEM] : [WELCOME_ITEM]);
       return;
     }
 
-    // Intercept theme command
-    if (resolvedCommand === 'theme') {
+    // intercept theme command (normal mode)
+    if (resolvedCommand === 'theme' && !activeProtocol) {
       const targetTheme = args[0]?.toLowerCase();
-      
       if (!targetTheme) {
-        setHistory((prev) => [
+        setNormalHistory((prev) => [
           ...prev,
           {
             id: Math.random().toString(36).substring(2, 9),
@@ -359,7 +451,6 @@ export const useTerminal = () => {
                 <p>  <CommandLink command="theme ubuntu">theme ubuntu</CommandLink> - Warm purple and orange theme</p>
                 <p>  <CommandLink command="theme matrix">theme matrix</CommandLink> - Glowing neon green console</p>
                 <p>  <CommandLink command="theme amber">theme amber</CommandLink>  - Warm retro CRT amber console</p>
-                <p className="mt-1 text-xs text-muted">Usage: theme &lt;theme-name&gt;</p>
               </div>
             )
           }
@@ -371,7 +462,7 @@ export const useTerminal = () => {
         const themeCast = targetTheme as ThemeType;
         setActiveTheme(themeCast);
         localStorage.setItem('lnk-os-theme', themeCast);
-        setHistory((prev) => [
+        setNormalHistory((prev) => [
           ...prev,
           {
             id: Math.random().toString(36).substring(2, 9),
@@ -380,19 +471,54 @@ export const useTerminal = () => {
           }
         ]);
       } else {
-        setHistory((prev) => [
+        setNormalHistory((prev) => [
           ...prev,
           {
             id: Math.random().toString(36).substring(2, 9),
             command: trimmedInput,
-            output: (
-              <div className="text-red-500">
-                Unknown theme: '{targetTheme}'. Type <CommandLink command="theme">theme</CommandLink> to see options.
-              </div>
-            )
+            output: <div className="text-red-500">Unknown theme: '{targetTheme}'.</div>
           }
         ]);
       }
+      return;
+    }
+
+    // Intercept mission rotation command
+    if (resolvedCommand === 'mission' && activeProtocol?.id === 'gotham') {
+      // Pick a random mission and update the index state
+      const newIndex = Math.floor(Math.random() * GOTHAM_MISSIONS.length);
+      setActiveMissionIndex(newIndex);
+      
+      const mission = GOTHAM_MISSIONS[newIndex];
+      const outputResult = (
+        <div className="space-y-3 font-mono text-sm text-[#78909c] max-w-xl select-text my-1 animate-pulse">
+          <div className="border border-[#c5a059]/40 bg-[#0c121e]/50 p-4 rounded-sm shadow-[0_0_15px_rgba(197,160,89,0.1)]">
+            <div className="flex justify-between items-center border-b border-[#c5a059]/20 pb-2 mb-3">
+              <span className="text-[#c5a059] font-bold tracking-widest text-xs">WAYNE ENTERPRISES SECURE DOSSIER</span>
+              <span className="text-[10px] font-semibold border border-[#c5a059]/40 px-2 py-0.5 rounded-sm text-[#c5a059]/80 uppercase">{mission.id}</span>
+            </div>
+            <div className="space-y-2">
+              <p><span className="text-[#c5a059] font-semibold">TARGET:</span> {mission.target}</p>
+              <p><span className="text-[#c5a059] font-semibold">PRIORITY:</span> <span className="text-red-500 font-bold animate-pulse">{mission.priority}</span></p>
+              <p><span className="text-[#c5a059] font-semibold">LAST KNOWN LOC:</span> {mission.location}</p>
+              <p className="text-sm leading-relaxed border-l-2 border-[#c5a059]/40 pl-3 py-0.5 italic text-[#78909c]/90 bg-[#c5a059]/5 rounded-r-xs">
+                "{mission.details}"
+              </p>
+              <p className="pt-1"><span className="text-[#c5a059] font-semibold">TACTICAL DEPLOY:</span> {mission.action}</p>
+            </div>
+          </div>
+          <p className="text-[10px] text-[#78909c]/50 text-center italic">// Telemetry updated via remote uplink //</p>
+        </div>
+      );
+
+      setGothamHistory((prev) => [
+        ...prev,
+        {
+          id: Math.random().toString(36).substring(2, 9),
+          command: trimmedInput,
+          output: outputResult,
+        },
+      ]);
       return;
     }
 
@@ -401,7 +527,7 @@ export const useTerminal = () => {
     if (resolvedCommand in commandRegistry) {
       outputResult = commandRegistry[resolvedCommand]();
     } else {
-      const suggestions = getClosestMatches(command, gothamMode);
+      const suggestions = getClosestMatches(command, !!activeProtocol);
       if (suggestions.length > 0) {
         outputResult = (
           <div className="text-red-500 space-y-2">
@@ -414,23 +540,17 @@ export const useTerminal = () => {
                 ))}
               </div>
             </div>
-            <p className="text-muted text-xs">
-              Type <CommandLink command="help">help</CommandLink> to view available commands.
-            </p>
           </div>
         );
       } else {
         outputResult = (
-          <div className="text-red-500">
-            Command not found: '{trimmedInput}'. Type <CommandLink command="help">help</CommandLink> for available commands.
-          </div>
+          <div className="text-red-500">Command not found: '{trimmedInput}'.</div>
         );
       }
     }
 
-    // Roll dynamic Gotham atmospheric events & quotes (rarity: 3% alerts, 1% quotes)
     let finalOutput = outputResult;
-    if (gothamMode) {
+    if (activeProtocol?.id === 'gotham') {
       const rand = Math.random();
       if (rand < 0.03) {
         const ambientAlerts = [
@@ -465,7 +585,7 @@ export const useTerminal = () => {
       }
     }
 
-    setHistory((prev) => [
+    historySetter((prev) => [
       ...prev,
       {
         id: Math.random().toString(36).substring(2, 9),
@@ -473,7 +593,7 @@ export const useTerminal = () => {
         output: finalOutput,
       },
     ]);
-  }, [activeTheme, gothamMode]);
+  }, [activeTheme, activeProtocol]);
 
   // Listen for global execution event dispatches
   useEffect(() => {
@@ -494,18 +614,46 @@ export const useTerminal = () => {
   }, []);
 
   const finishGothamBoot = useCallback(() => {
-    setGothamBooting(false);
-    setGothamMode(true);
+    setProtocolBooting(false);
+    setActiveProtocol(GOTHAM_PROTOCOL);
     sessionStorage.setItem('lnk-os-gotham-active', 'true');
     setActiveTheme('gotham');
   }, []);
 
   const handleTabComplete = useCallback((input: string): string | null => {
     const trimmed = input.trim().toLowerCase();
+    const historySetter = activeProtocol ? setGothamHistory : setNormalHistory;
     
-    // 1. Empty Prompt case: show grouped commands
     if (!trimmed) {
-      setHistory((prev) => [
+      if (activeProtocol?.id === 'gotham') {
+        historySetter((prev) => [
+          ...prev,
+          {
+            id: Math.random().toString(36).substring(2, 9),
+            command: '',
+            output: (
+              <div className="space-y-2.5 my-1 text-terminal select-text text-sm">
+                <p className="text-[#c5a059]/50">// Available Gotham Commands:</p>
+                <div className="grid grid-cols-2 gap-4 max-w-sm border border-[#121d2d]/60 p-3 bg-[#080d14]/40 rounded-sm">
+                  <div className="flex flex-col gap-1 items-start">
+                    <CommandLink command="mission">mission</CommandLink>
+                    <CommandLink command="villains">villains</CommandLink>
+                    <CommandLink command="gadgets">gadgets</CommandLink>
+                  </div>
+                  <div className="flex flex-col gap-1 items-start">
+                    <CommandLink command="batcomputer">batcomputer</CommandLink>
+                    <CommandLink command="neofetch">neofetch</CommandLink>
+                    <CommandLink command="alfred">alfred</CommandLink>
+                  </div>
+                </div>
+              </div>
+            )
+          }
+        ]);
+        return null;
+      }
+
+      historySetter((prev) => [
         ...prev,
         {
           id: Math.random().toString(36).substring(2, 9),
@@ -513,7 +661,6 @@ export const useTerminal = () => {
           output: (
             <div className="space-y-2.5 my-1 text-terminal select-text">
               <p className="text-muted/65">// Available Commands:</p>
-              
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg border border-border/20 p-3 bg-bg/40 rounded-sm">
                 <div>
                   <span className="text-[10px] text-accent/70 uppercase font-bold tracking-wider block mb-1">Navigation</span>
@@ -524,7 +671,6 @@ export const useTerminal = () => {
                     <CommandLink command="contact">contact</CommandLink>
                   </div>
                 </div>
-                
                 <div>
                   <span className="text-[10px] text-accent/70 uppercase font-bold tracking-wider block mb-1">Profile</span>
                   <div className="flex flex-col gap-1 items-start">
@@ -534,7 +680,6 @@ export const useTerminal = () => {
                     <CommandLink command="neofetch">neofetch</CommandLink>
                   </div>
                 </div>
-
                 <div>
                   <span className="text-[10px] text-accent/70 uppercase font-bold tracking-wider block mb-1">System</span>
                   <div className="flex flex-col gap-1 items-start">
@@ -552,15 +697,14 @@ export const useTerminal = () => {
       return null;
     }
 
-    // 2. Fetch matches using getAutocomplete
-    const { completedValue, multipleMatches } = getAutocomplete(input, gothamMode);
+    const { completedValue, multipleMatches } = getAutocomplete(input, !!activeProtocol);
 
     if (completedValue) {
       return completedValue;
     }
 
     if (multipleMatches.length > 0) {
-      setHistory((prev) => [
+      historySetter((prev) => [
         ...prev,
         {
           id: Math.random().toString(36).substring(2, 9),
@@ -580,20 +724,20 @@ export const useTerminal = () => {
     }
 
     return null;
-  }, [gothamMode]);
+  }, [activeProtocol]);
 
   return {
-    history,
+    history: activeProtocol ? gothamHistory : normalHistory,
     booting,
     theme: activeTheme,
     setTheme: setActiveTheme,
     executeCommand,
     finishBooting,
     handleTabComplete,
-    gothamMode,
-    gothamBooting,
-    setGothamBooting,
-    setGothamMode,
+    activeProtocol,
+    takeoverGlitch,
+    protocolBooting,
     finishGothamBoot,
+    activeMissionIndex
   };
 };
