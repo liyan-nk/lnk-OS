@@ -183,6 +183,17 @@ function App() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isMobileViewport, setIsMobileViewport] = useState<boolean>(() => {
+    return typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileViewport(window.innerWidth < 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Auto-scroll logic targeting the top of reading-heavy layouts
   useEffect(() => {
@@ -288,7 +299,47 @@ function App() {
   if (protocolBooting && activeProtocol) {
     return <GothamBootScreen onComplete={finishGothamBoot} protocol={activeProtocol} />;
   }
-
+  // 2B. Mobile Viewport Restriction Notice
+  if (activeProtocol && isMobileViewport) {
+    return (
+      <div className="fixed inset-0 bg-[#04070c] text-red-500 font-mono flex flex-col justify-center items-center p-6 z-55 select-none text-center">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#c5a05901_1px,transparent_1px),linear-gradient(to_bottom,#c5a05901_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#04070c_80%)] pointer-events-none z-0" />
+        
+        <div className="border border-red-500/30 bg-red-500/5 p-8 rounded-sm shadow-[0_0_40px_rgba(239,68,68,0.15)] max-w-md relative z-20 space-y-5">
+          <div className="text-xl font-bold uppercase tracking-widest animate-pulse flex items-center justify-center gap-2">
+            <span className="inline-block w-3 h-3 bg-red-500 rounded-full animate-ping" />
+            <span>ACCESS RESTRICTED</span>
+          </div>
+          
+          <h2 className="text-[#c5a059] font-bold text-base uppercase tracking-widest">
+            BATCOMPUTER ACCESS RESTRICTED
+          </h2>
+          
+          <p className="text-xs text-[#78909c] leading-relaxed">
+            Remote handheld terminals are not authorized for classified operations.
+          </p>
+          
+          <div className="text-xs border-t border-b border-red-500/10 py-3 text-[#78909c]/90">
+            <span className="text-[#c5a059] font-bold block text-[10px] uppercase tracking-wider mb-1">Minimum requirement:</span>
+            Desktop Tactical Workstation
+          </div>
+          
+          <p className="text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+            Access denied.
+          </p>
+          
+          <button 
+            type="button"
+            onClick={() => executeCommand('alfred')}
+            className="text-xs font-mono px-4 py-2 border border-red-500/30 hover:border-red-500 hover:text-red-500 bg-[#060a12] text-red-500/70 transition-all rounded-sm cursor-pointer select-none font-semibold w-full mt-2"
+          >
+            [ Return to LNK OS ]
+          </button>
+        </div>
+      </div>
+    );
+  }
   // 3. Batcomputer Fullscreen Mainframe Dashboard
   if (activeProtocol) {
     return (
