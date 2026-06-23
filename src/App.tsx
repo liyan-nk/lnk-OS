@@ -223,9 +223,8 @@ function App() {
     scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
   }, [history]);
 
-  // Ambient Audio Loop Setup and Lifecycle control
   useEffect(() => {
-    if (activeProtocol && !protocolBooting) {
+    if (activeProtocol && !protocolBooting && !isMobileViewport) {
       if (!ambientAudioRef.current) {
         try {
           // NOTE: Temporary audio asset. To be replaced with cinematic ambient score.
@@ -302,40 +301,44 @@ function App() {
   // 2B. Mobile Viewport Restriction Notice
   if (activeProtocol && isMobileViewport) {
     return (
-      <div className="fixed inset-0 bg-[#04070c] text-red-500 font-mono flex flex-col justify-center items-center p-6 z-55 select-none text-center">
+      <div className="fixed inset-0 bg-[#04070c] text-[#78909c] font-mono flex flex-col justify-center items-center p-6 z-55 select-none text-center">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#c5a05901_1px,transparent_1px),linear-gradient(to_bottom,#c5a05901_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#04070c_80%)] pointer-events-none z-0" />
         
-        <div className="border border-red-500/30 bg-red-500/5 p-8 rounded-sm shadow-[0_0_40px_rgba(239,68,68,0.15)] max-w-md relative z-20 space-y-5">
-          <div className="text-xl font-bold uppercase tracking-widest animate-pulse flex items-center justify-center gap-2">
-            <span className="inline-block w-3 h-3 bg-red-500 rounded-full animate-ping" />
-            <span>ACCESS RESTRICTED</span>
+        <div className="border border-red-500/30 bg-[#0c121e]/85 p-8 rounded-sm shadow-[0_0_40px_rgba(239,68,68,0.15)] max-w-md relative z-20 space-y-5">
+          <div className="text-xl font-bold uppercase tracking-widest text-red-500 flex items-center justify-center gap-2">
+            <span className="inline-block w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+            <span>BATCOMPUTER ACCESS RESTRICTED</span>
           </div>
           
-          <h2 className="text-[#c5a059] font-bold text-base uppercase tracking-widest">
-            BATCOMPUTER ACCESS RESTRICTED
-          </h2>
-          
-          <p className="text-xs text-[#78909c] leading-relaxed">
-            Remote handheld terminals are not authorized for classified operations.
-          </p>
-          
-          <div className="text-xs border-t border-b border-red-500/10 py-3 text-[#78909c]/90">
-            <span className="text-[#c5a059] font-bold block text-[10px] uppercase tracking-wider mb-1">Minimum requirement:</span>
-            Desktop Tactical Workstation
+          <div className="space-y-3 text-sm text-[#78909c]/90">
+            <p>
+              Gotham Protocol is only available on desktop and laptop devices.
+            </p>
+            <p className="text-xs text-[#78909c]/70">
+              Your current device does not support the Batcomputer interface.
+            </p>
+            <p className="text-xs text-[#78909c]/70">
+              Please open LNK OS on a desktop or laptop to access Gotham Protocol.
+            </p>
           </div>
           
-          <p className="text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
-            Access denied.
-          </p>
+          <div className="text-xs border-t border-b border-[#121d2d] py-3 space-y-1 text-left px-2">
+            <p><span className="text-[#c5a059] font-bold">Current Device:</span> Mobile</p>
+            <p><span className="text-[#c5a059] font-bold">Required Device:</span> Desktop / Laptop</p>
+          </div>
           
           <button 
             type="button"
             onClick={() => executeCommand('alfred')}
-            className="text-xs font-mono px-4 py-2 border border-red-500/30 hover:border-red-500 hover:text-red-500 bg-[#060a12] text-red-500/70 transition-all rounded-sm cursor-pointer select-none font-semibold w-full mt-2"
+            className="text-xs font-mono px-4 py-2.5 border border-[#121d2d] hover:border-accent hover:text-accent bg-[#060a12] text-[#78909c] transition-all rounded-sm cursor-pointer select-none font-semibold w-full"
           >
             [ Return to LNK OS ]
           </button>
+          
+          <div className="text-[9px] text-[#78909c]/30 uppercase tracking-widest pt-1">
+            // Wayne Enterprises Security Division //
+          </div>
         </div>
       </div>
     );
@@ -434,7 +437,7 @@ function App() {
           <button 
             type="button"
             onClick={() => executeCommand('intel')}
-            className="text-xs font-mono px-3 py-1.5 border border-[#121d2d] hover:border-accent hover:text-accent bg-[#060a12] text-[#78909c] transition-colors rounded-sm cursor-pointer select-none font-semibold text-[#c5a059]"
+            className="text-xs font-mono px-3 py-1.5 border border-[#121d2d] hover:border-accent hover:text-accent bg-[#060a12] text-[#78909c] transition-colors rounded-sm cursor-pointer select-none font-semibold"
           >
             [ Intel ]
           </button>

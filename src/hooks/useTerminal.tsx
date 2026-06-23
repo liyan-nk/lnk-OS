@@ -250,6 +250,14 @@ export const useTerminal = () => {
     if (!activeProtocol) {
       const triggeredProtocol = findProtocolByTrigger(resolvedCommand);
       if (triggeredProtocol) {
+        const isMobile = typeof window !== 'undefined' && (window.innerWidth < 1024 || window.matchMedia('(pointer: coarse)').matches);
+        if (isMobile) {
+          // Mobile: Skip cinematic sequences, audio triggers, diagnostics, and go straight to restricted screen
+          setActiveProtocol(triggeredProtocol);
+          localStorage.setItem('lnk-os-secret-gotham-unlocked', 'true');
+          return;
+        }
+
         setTakeoverGlitch(true);
 
         try {
