@@ -46,3 +46,14 @@ export interface BioInfo {
   intro: string;
   fullText: string[];
 }
+
+export interface GothamMission {
+  id: string;
+  target: string;
+  status: string;
+  objective: string;
+  priority: string;
+  location: string;
+  action: string;
+  equipment: string[];
+}

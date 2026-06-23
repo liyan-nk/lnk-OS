@@ -22,19 +22,19 @@ export const GOTHAM_PROTOCOL: SecretProtocol = {
   bootSequence: {
     title: 'WAYNE ENTERPRISES SECURE CHANNEL DETECTED',
     logs: [
-      "Initializing surveillance network... [ OK ]",
-      "Connecting Batcomputer mainframe... [ OK ]",
-      "Scanning Gotham sector grid... [ OK ]",
-      "Monitoring Arkham Asylum... [ OK ]",
-      "Threat assessment... CRITICAL"
+      "Initializing LNK Network sweep... [ OK ]",
+      "Establishing secure Batcomputer mainframe uplink... [ OK ]",
+      "Syncing KMCT CEETM node protocols... [ OK ]",
+      "Verifying GitHub & LinkedIn integration... [ OK ]",
+      "Opposition threat assessment... CRITICAL"
     ]
   },
   startupSequence: [
     "BATCOMPUTER ONLINE",
-    "THREAT FEED ........ ONLINE",
-    "SURVEILLANCE ........ ONLINE",
+    "RESISTANCE MAP ...... ONLINE",
+    "NETWORK MONITOR ..... ONLINE",
     "MISSION CONTROL ..... ONLINE",
-    "UTILITY BELT ........ ONLINE",
+    "ARSENAL ............. ONLINE",
     "ENCRYPTION .......... ACTIVE"
   ],
   lockedCommands: ['theme']

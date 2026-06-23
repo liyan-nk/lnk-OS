@@ -4,6 +4,7 @@ import { commandRegistry } from './../utils/commandRegistry';
 import { CommandLink } from '../components/common/CommandLink';
 import type { SecretProtocol } from '../utils/protocolRegistry';
 import { GOTHAM_PROTOCOL, findProtocolByTrigger } from '../utils/protocolRegistry';
+import { GOTHAM_MISSIONS } from '../data/portfolio';
 
 export interface HistoryItem {
   id: string;
@@ -36,12 +37,12 @@ export const GOTHAM_WELCOME_ITEM: HistoryItem = {
     <div className="space-y-1 text-[#78909c]">
       <div className="text-[#c5a059] font-bold text-base">WAYNE ENTERPRISES SECURE PORTAL v8.12</div>
       <div className="text-[10px] text-[#c5a059]/40 uppercase tracking-widest font-semibold">// CLASSIFIED // WAYNE ENTERPRISES INTERNAL USE ONLY //</div>
-      <div>Uplink   : Brother Eye Satellite (Active)</div>
+      <div>Uplink   : ORACLE Mainframe Satellite Link (Secure)</div>
       <div>------------------------------------------------</div>
       <div className="text-xs pt-1 select-text">
         Gotham Protocol session established successfully.
         <br />
-        Type <span className="text-[#c5a059] font-semibold border-b border-[#c5a059]/20">help</span> to view available system options.
+        Type <span className="text-[#c5a059] font-semibold border-b border-[#c5a059]/20">intel</span> to view classified protocol access.
       </div>
     </div>
   )
@@ -56,7 +57,8 @@ export const ALIAS_MAP: Record<string, string> = {
   portfolio: 'projects',
   mail: 'contact',
   education: 'journey',
-  cv: 'resume'
+  cv: 'resume',
+  resistance: 'opposition'
 };
 
 export const PRIMARY_COMMANDS = [
@@ -88,7 +90,7 @@ export function getAutocomplete(input: string, isGotham: boolean = false): Autoc
   const trimmed = input.trim().toLowerCase();
   
   const activeCommands = isGotham
-    ? [...PRIMARY_COMMANDS, 'mission', 'villains', 'gadgets', 'batcomputer', 'alfred']
+    ? [...PRIMARY_COMMANDS, 'intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred']
     : PRIMARY_COMMANDS;
 
   if (!input) {
@@ -174,7 +176,7 @@ function getClosestMatches(input: string, isGotham: boolean = false): string[] {
   let matches: string[] = [];
 
   const activeCommands = isGotham
-    ? [...PRIMARY_COMMANDS, 'mission', 'villains', 'gadgets', 'batcomputer', 'alfred']
+    ? [...PRIMARY_COMMANDS, 'intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred']
     : PRIMARY_COMMANDS;
 
   for (const cmd of activeCommands) {
@@ -194,44 +196,7 @@ function getClosestMatches(input: string, isGotham: boolean = false): string[] {
   return [];
 }
 
-export const GOTHAM_MISSIONS = [
-  {
-    id: "OP-NIGHTFALL",
-    target: "Joker",
-    priority: "CRITICAL",
-    location: "Gotham Amusement Mile",
-    details: "Surveillance reports joker gas canisters hidden under the warehouse docks. Secure the perimeter immediately.",
-    action: "Deploy batmobile and disable ventilation systems.",
-    equipment: ["✓ Grapple Gun", "✓ Smoke Pellets"]
-  },
-  {
-    id: "OP-FEARLESS",
-    target: "Scarecrow",
-    priority: "CRITICAL",
-    location: "Arkham Asylum Sewer Outlets",
-    details: "Anomalous fear toxin dispersion detected in water supply grid 3-B. Pinpoint the distribution node.",
-    action: "Equip rebreather and trace chemical residue.",
-    equipment: ["✓ Rebreather", "✓ Cryptographic Sequencer"]
-  },
-  {
-    id: "OP-ENIGMA",
-    target: "Riddler",
-    priority: "HIGH",
-    location: "Gotham City Cathedral Tower",
-    details: "Cryptographic relay intercepting police communications. Decrypt puzzle sequence on frequencies 88.4 / 92.1.",
-    action: "Establish remote mainframe tap to counter-hack.",
-    equipment: ["✓ Cryptographic Sequencer", "✓ Batarang"]
-  },
-  {
-    id: "OP-ICEBOX",
-    target: "Mr. Freeze",
-    priority: "HIGH",
-    location: "GothCorp Cryo-Gen Labs",
-    details: "Sub-zero energy surge threatening the city grid. Internal temperature dropped to -50C.",
-    action: "Activate thermal shielding armor modules.",
-    equipment: ["✓ Thermal Armor Upgrade", "✓ Grapple Gun"]
-  }
-];
+// GOTHAM_MISSIONS imported from portfolio data to avoid circular references
 
 export const useTerminal = () => {
   const [normalHistory, setNormalHistory] = useState<HistoryItem[]>([WELCOME_ITEM]);
@@ -263,6 +228,15 @@ export const useTerminal = () => {
     document.documentElement.setAttribute('data-theme', activeTheme);
   }, [activeTheme]);
 
+  // Rotate missions dynamically every 10 seconds in Gotham Mode
+  useEffect(() => {
+    if (!activeProtocol || activeProtocol.id !== 'gotham') return;
+    const interval = setInterval(() => {
+      setActiveMissionIndex((prev) => (prev + 1) % GOTHAM_MISSIONS.length);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [activeProtocol]);
+
   const executeCommand = useCallback((input: string) => {
     const trimmedInput = input.trim();
     if (!trimmedInput) return;
@@ -279,6 +253,7 @@ export const useTerminal = () => {
         setTakeoverGlitch(true);
 
         try {
+          // NOTE: Temporary audio asset. To be replaced with cinematic vocal confirmation.
           const audio = new Audio('/audio/oracle_activation.mp3');
           audio.play().catch((err) => {
             console.warn('Audio play failed or blocked:', err);
@@ -392,7 +367,7 @@ export const useTerminal = () => {
     }
 
     // Hide Gotham-only commands if normal mode
-    const GOTHAM_ONLY_COMMANDS = ['mission', 'villains', 'gadgets', 'batcomputer', 'alfred'];
+    const GOTHAM_ONLY_COMMANDS = ['intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred'];
     if (GOTHAM_ONLY_COMMANDS.includes(resolvedCommand) && !activeProtocol) {
       const suggestions = getClosestMatches(command, false);
       let outputResult: React.ReactNode;
@@ -499,12 +474,15 @@ export const useTerminal = () => {
               <span className="text-[10px] font-semibold border border-[#c5a059]/40 px-2 py-0.5 rounded-sm text-[#c5a059]/80 uppercase">{mission.id}</span>
             </div>
             <div className="space-y-2">
-              <p><span className="text-[#c5a059] font-semibold">TARGET:</span> {mission.target}</p>
-              <p><span className="text-[#c5a059] font-semibold">PRIORITY:</span> <span className="text-red-500 font-bold animate-pulse">{mission.priority}</span></p>
-              <p><span className="text-[#c5a059] font-semibold">LAST KNOWN LOC:</span> {mission.location}</p>
+              <p><span className="text-[#c5a059] font-semibold">OPERATION:</span> {mission.target}</p>
+              <p><span className="text-[#c5a059] font-semibold">STATUS:</span> <span className="text-amber-500 font-semibold">{mission.status}</span></p>
+              <p><span className="text-[#c5a059] font-semibold">OBJECTIVE:</span></p>
               <p className="text-sm leading-relaxed border-l-2 border-[#c5a059]/40 pl-3 py-0.5 italic text-[#78909c]/90 bg-[#c5a059]/5 rounded-r-xs">
-                "{mission.details}"
+                "{mission.objective}"
               </p>
+              {mission.priority && (
+                <p><span className="text-[#c5a059] font-semibold">PRIORITY:</span> <span className="text-red-500 font-bold animate-pulse">{mission.priority}</span></p>
+              )}
               <p className="pt-1"><span className="text-[#c5a059] font-semibold">TACTICAL DEPLOY:</span> {mission.action}</p>
             </div>
           </div>
@@ -555,11 +533,10 @@ export const useTerminal = () => {
       const rand = Math.random();
       if (rand < 0.03) {
         const ambientAlerts = [
-          "[ Bat-Signal detected in sector 4-G ]",
-          "[ Rain intensity increasing. Wind speed 22kt ]",
-          "[ Arkham Asylum gate 3 status check... OK ]",
-          "[ Surveillance sweeps show activity near Crime Alley ]",
-          "[ Batmobile remote link active and parsing telemetry ]"
+          "[ LNK Network Sweep... 100% OK ]",
+          "[ Github Webhook activity logged ]",
+          "[ Local workspace buffer synced ]",
+          "[ Scanning learning system metrics... ]"
         ];
         const alert = ambientAlerts[Math.floor(Math.random() * ambientAlerts.length)];
         finalOutput = (
@@ -570,11 +547,12 @@ export const useTerminal = () => {
         );
       } else if (rand >= 0.03 && rand < 0.04) {
         const quotes = [
-          "\"I am vengeance.\"",
-          "\"A hero can be anyone.\"",
-          "\"The night is darkest just before the dawn.\"",
-          "\"Why do we fall? So we can learn to pick ourselves up.\"",
-          "\"I am the night.\""
+          "ORACLE: Discipline compounds faster than motivation.",
+          "ORACLE: Comfort is the enemy of growth.",
+          "ORACLE: Progress detected. Continue.",
+          "ORACLE: Operator focus level rising.",
+          "ORACLE: Mission continuity maintained.",
+          "ORACLE: Forged in Silence."
         ];
         const quote = quotes[Math.floor(Math.random() * quotes.length)];
         finalOutput = (
@@ -633,17 +611,37 @@ export const useTerminal = () => {
             command: '',
             output: (
               <div className="space-y-2.5 my-1 text-terminal select-text text-sm">
-                <p className="text-[#c5a059]/50">// Available Gotham Commands:</p>
-                <div className="grid grid-cols-2 gap-4 max-w-sm border border-[#121d2d]/60 p-3 bg-[#080d14]/40 rounded-sm">
-                  <div className="flex flex-col gap-1 items-start">
-                    <CommandLink command="mission">mission</CommandLink>
-                    <CommandLink command="villains">villains</CommandLink>
-                    <CommandLink command="gadgets">gadgets</CommandLink>
+                <p className="text-[#c5a059]/50">// Intel System Catalog (Press Tab or type command):</p>
+                <div className="border border-[#121d2d]/60 p-3 bg-[#080d14]/40 rounded-sm space-y-2.5 max-w-md text-xs">
+                  <div>
+                    <span className="text-[#c5a059] font-bold block mb-1 uppercase tracking-wider text-[10px]">// Special Protocols</span>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1">
+                      <CommandLink command="mission">mission</CommandLink>
+                      <CommandLink command="opposition">opposition</CommandLink>
+                      <CommandLink command="resistance">resistance</CommandLink>
+                      <CommandLink command="arsenal">arsenal</CommandLink>
+                      <CommandLink command="batcomputer">batcomputer</CommandLink>
+                      <CommandLink command="oracle">oracle</CommandLink>
+                      <CommandLink command="status">status</CommandLink>
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-1 items-start">
-                    <CommandLink command="batcomputer">batcomputer</CommandLink>
-                    <CommandLink command="neofetch">neofetch</CommandLink>
-                    <CommandLink command="alfred">alfred</CommandLink>
+                  <div>
+                    <span className="text-[#c5a059] font-bold block mb-1 uppercase tracking-wider text-[10px]">// Classified Dossiers</span>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1">
+                      <CommandLink command="about">about</CommandLink>
+                      <CommandLink command="projects">projects</CommandLink>
+                      <CommandLink command="skills">skills</CommandLink>
+                      <CommandLink command="resume">resume</CommandLink>
+                      <CommandLink command="journey">journey</CommandLink>
+                      <CommandLink command="contact">contact</CommandLink>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-[#c5a059] font-bold block mb-1 uppercase tracking-wider text-[10px]">// System</span>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1">
+                      <CommandLink command="neofetch">neofetch</CommandLink>
+                      <CommandLink command="alfred">alfred</CommandLink>
+                    </div>
                   </div>
                 </div>
               </div>

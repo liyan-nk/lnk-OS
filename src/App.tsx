@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { useTerminal, ALIAS_MAP, GOTHAM_MISSIONS } from './hooks/useTerminal';
+import { useTerminal, ALIAS_MAP } from './hooks/useTerminal';
+import { GOTHAM_MISSIONS } from './data/portfolio';
 import { BootScreen } from './components/terminal/BootScreen';
 import { InputLine } from './components/terminal/InputLine';
 import { GothamBootScreen } from './components/terminal/GothamBootScreen';
 import { GothamRainEffect } from './components/terminal/GothamRainEffect';
 
-function ThreatFeedPanel() {
+function ResistanceMapPanel() {
   const [threats, setThreats] = useState([
-    { name: 'JOKER', status: 'ACTIVE', color: 'text-red-500 font-bold animate-pulse' },
-    { name: 'RIDDLER', status: 'UNKNOWN', color: 'text-yellow-500/80' },
-    { name: 'SCARECROW', status: 'MONITORED', color: 'text-emerald-500/80' },
-    { name: 'BANE', status: 'CONTAINED', color: 'text-[#78909c]/60' }
+    { name: 'PROCRASTINATION', status: 'ACTIVE', color: 'text-red-500 font-bold animate-pulse' },
+    { name: 'DISTRACTIONS', status: 'MONITORED', color: 'text-amber-500' },
+    { name: 'COMFORT ZONE', status: 'BREACH', color: 'text-emerald-500' },
+    { name: 'INCONSISTENCY', status: 'TRACKED', color: 'text-[#78909c]/60' }
   ]);
 
   useEffect(() => {
@@ -18,18 +19,18 @@ function ThreatFeedPanel() {
       setThreats(prev => {
         const next = [...prev];
         const idx = Math.floor(Math.random() * next.length);
-        if (next[idx].name === 'JOKER') {
+        if (next[idx].name === 'PROCRASTINATION') {
           next[idx] = next[idx].status === 'ACTIVE'
-            ? { name: 'JOKER', status: 'UNKNOWN', color: 'text-yellow-500/80' }
-            : { name: 'JOKER', status: 'ACTIVE', color: 'text-red-500 font-bold animate-pulse' };
-        } else if (next[idx].name === 'RIDDLER') {
-          next[idx] = next[idx].status === 'UNKNOWN'
-            ? { name: 'RIDDLER', status: 'MONITORED', color: 'text-emerald-500/80' }
-            : { name: 'RIDDLER', status: 'UNKNOWN', color: 'text-yellow-500/80' };
-        } else if (next[idx].name === 'SCARECROW') {
+            ? { name: 'PROCRASTINATION', status: 'MONITORED', color: 'text-amber-500' }
+            : { name: 'PROCRASTINATION', status: 'ACTIVE', color: 'text-red-500 font-bold animate-pulse' };
+        } else if (next[idx].name === 'DISTRACTIONS') {
           next[idx] = next[idx].status === 'MONITORED'
-            ? { name: 'SCARECROW', status: 'ACTIVE', color: 'text-red-500 font-bold animate-pulse' }
-            : { name: 'SCARECROW', status: 'MONITORED', color: 'text-emerald-500/80' };
+            ? { name: 'DISTRACTIONS', status: 'TRACKED', color: 'text-emerald-500' }
+            : { name: 'DISTRACTIONS', status: 'MONITORED', color: 'text-amber-500' };
+        } else if (next[idx].name === 'COMFORT ZONE') {
+          next[idx] = next[idx].status === 'BREACH'
+            ? { name: 'COMFORT ZONE', status: 'ACTIVE', color: 'text-red-500 font-bold animate-pulse' }
+            : { name: 'COMFORT ZONE', status: 'BREACH', color: 'text-emerald-500' };
         }
         return next;
       });
@@ -40,13 +41,13 @@ function ThreatFeedPanel() {
   return (
     <div className="border border-[#121d2d] bg-[#080d14]/75 p-3 sm:p-4 rounded-sm space-y-2 flex-grow shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
       <div className="text-[10px] text-accent/60 uppercase tracking-widest font-bold border-b border-[#121d2d] pb-1.5 flex justify-between items-center select-none">
-        <span>// THREAT FEED //</span>
-        <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
+        <span>// RESISTANCE MAP //</span>
+        <span className="w-1.5 h-1.5 bg-[#c5a059] rounded-full animate-ping" />
       </div>
       <div className="space-y-1.5 text-xs font-mono select-none">
         {threats.map(t => (
           <div key={t.name} className="flex justify-between items-center">
-            <span className="font-semibold text-white/95">{t.name}</span>
+            <span className="font-semibold text-white/90">{t.name}</span>
             <span className={t.color}>[{t.status}]</span>
           </div>
         ))}
@@ -55,22 +56,23 @@ function ThreatFeedPanel() {
   );
 }
 
-function SurveillancePanel() {
+function NetworkMonitoringPanel() {
   const [logs, setLogs] = useState([
-    'SATELLITE LINK ACTIVE',
-    'GCPD FEED CONNECTED',
-    'ARKHAM GRID MONITORED',
-    'WAYNE SECURITY GREEN'
+    'KMCT CEETM ............ ONLINE',
+    'GITHUB NODE ........... CONNECTED',
+    'LINKEDIN NODE ......... CONNECTED',
+    'DEPLOYMENT GRID ....... ACTIVE',
+    'LEARNING SYSTEM ....... MONITORING'
   ]);
-  const [sweep, setSweep] = useState('Sweeping Sector 4-G... [ OK ]');
+  const [sweep, setSweep] = useState('Sweeping LNK Network... [ OK ]');
 
   useEffect(() => {
     const sweeps = [
-      'Sweeping Sector 4-G... [ OK ]',
-      'Sweeping Sector 2-B... [ OK ]',
-      'Sweeping East End... [ SAFE ]',
-      'Scanning Crime Alley... [ ALERT ]',
-      'Brother Eye Link: 100% stable'
+      'Sweeping LNK Network... [ OK ]',
+      'Github webhook listener: active',
+      'Vercel deploy check: 100% stable',
+      'Scanning academic records... [ OK ]',
+      'Workspace buffer: synchronized'
     ];
     const interval = setInterval(() => {
       setSweep(sweeps[Math.floor(Math.random() * sweeps.length)]);
@@ -87,10 +89,10 @@ function SurveillancePanel() {
   return (
     <div className="border border-[#121d2d] bg-[#080d14]/75 p-3 sm:p-4 rounded-sm space-y-2 flex-grow shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
       <div className="text-[10px] text-accent/60 uppercase tracking-widest font-bold border-b border-[#121d2d] pb-1.5 select-none">
-        // SURVEILLANCE FEED //
+        // NETWORK MONITORING //
       </div>
       <div className="space-y-1.5 text-[11px] font-mono text-[#78909c]/80 select-none">
-        {logs.slice(0, 3).map((l, idx) => (
+        {logs.slice(0, 4).map((l, idx) => (
           <div key={idx} className="flex items-center space-x-1.5">
             <span className="w-1 h-1 bg-[#c5a059] rounded-full shrink-0 animate-pulse" />
             <span className="truncate">{l}</span>
@@ -109,52 +111,53 @@ function MissionControlPanel({ activeIndex }: { activeIndex: number }) {
   return (
     <div className="border border-[#121d2d] bg-[#080d14]/75 p-3 sm:p-4 rounded-sm space-y-2 flex-grow flex flex-col min-h-[140px] shadow-[0_4px_15px_rgba(0,0,0,0.5)] select-text">
       <div className="text-[10px] text-accent/60 uppercase tracking-widest font-bold border-b border-[#121d2d] pb-1.5 select-none">
-        // ACTIVE MISSION DOSSIER //
+        // MISSION CONTROL //
       </div>
-      <div className="space-y-2 text-xs font-mono flex-grow overflow-y-auto pr-1">
-        <p className="font-bold text-white tracking-wide border-b border-[#121d2d]/30 pb-0.5">{mission.id}</p>
-        <div className="space-y-1 text-[#78909c]/90">
-          <p><span className="text-accent font-semibold">TARGET:</span> {mission.target}</p>
-          <p><span className="text-accent font-semibold">PRIORITY:</span> <span className="text-red-500 font-bold">{mission.priority}</span></p>
-          <p className="text-[11px] leading-relaxed italic border-l border-accent/30 pl-2 py-0.5 mt-1 bg-[#c5a059]/5 rounded-r-xs">
-            "{mission.details}"
-          </p>
-          <div className="pt-1.5 space-y-1">
-            <span className="text-accent font-semibold block text-[10px] uppercase select-none">Recommended Gear:</span>
-            <div className="flex flex-wrap gap-1 mt-0.5">
-              {mission.equipment.map((eq, idx) => (
-                <span key={idx} className="text-[9px] px-2 py-0.5 bg-[#121d2d]/50 border border-[#121d2d]/80 rounded-xs text-[#78909c] select-none font-bold">
-                  {eq}
-                </span>
-              ))}
-            </div>
+      <div className="space-y-2.5 text-xs font-mono flex-grow overflow-y-auto pr-1">
+        <div className="space-y-2 text-[#78909c]/90">
+          <div>
+            <span className="text-accent font-bold block text-[10px] tracking-wider select-none">OPERATION:</span>
+            <span className="text-white font-bold">{mission.target}</span>
           </div>
+          <div>
+            <span className="text-accent font-bold block text-[10px] tracking-wider select-none">STATUS:</span>
+            <span className="text-amber-500 font-semibold">{mission.status}</span>
+          </div>
+          <div>
+            <span className="text-accent font-bold block text-[10px] tracking-wider select-none">OBJECTIVE:</span>
+            <span className="text-white/95 leading-relaxed">{mission.objective}</span>
+          </div>
+          {mission.priority && (
+            <div>
+              <span className="text-accent font-bold block text-[10px] tracking-wider select-none">PRIORITY:</span>
+              <span className="text-red-500 font-bold tracking-wider animate-pulse">{mission.priority}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function UtilityBeltPanel() {
+function ArsenalPanel() {
   const items = [
-    { name: 'Batarang', qty: '6 / 6', state: 'READY' },
-    { name: 'Grapple Gun', qty: '94% CELL', state: 'ARMED' },
-    { name: 'Smoke Bomb', qty: '4 / 4', state: 'READY' },
-    { name: 'Batmobile Link', qty: 'ONLINE', state: 'STANDBY' }
+    { name: 'Python', status: 'READY', color: 'text-emerald-500' },
+    { name: 'TypeScript', status: 'READY', color: 'text-emerald-500' },
+    { name: 'Linux', status: 'ACTIVE', color: 'text-amber-500' },
+    { name: 'Next.js', status: 'ONLINE', color: 'text-emerald-500' },
+    { name: 'Problem Solving', status: 'ARMED', color: 'text-red-500 font-bold animate-pulse' },
+    { name: 'Discipline', status: 'CHARGING', color: 'text-amber-500' }
   ];
   return (
     <div className="border border-[#121d2d] bg-[#080d14]/75 p-3 sm:p-4 rounded-sm space-y-2 flex-grow shadow-[0_4px_15px_rgba(0,0,0,0.5)] select-none">
       <div className="text-[10px] text-accent/60 uppercase tracking-widest font-bold border-b border-[#121d2d] pb-1.5">
-        // UTILITY BELT INVENTORY //
+        // ARSENAL //
       </div>
       <div className="space-y-1.5 text-xs font-mono">
         {items.map(i => (
           <div key={i.name} className="flex justify-between items-center text-[#78909c]/90">
             <span className="font-semibold text-white/90">{i.name}</span>
-            <div className="flex space-x-2 text-[10px]">
-              <span>{i.qty}</span>
-              <span className="text-emerald-500 font-bold">[{i.state}]</span>
-            </div>
+            <span className={`text-[10px] font-bold ${i.color}`}>[{i.status}]</span>
           </div>
         ))}
       </div>
@@ -176,7 +179,10 @@ function App() {
     finishGothamBoot,
     activeMissionIndex
   } = useTerminal();
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
 
   // Auto-scroll logic targeting the top of reading-heavy layouts
   useEffect(() => {
@@ -205,6 +211,53 @@ function App() {
 
     scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
   }, [history]);
+
+  // Ambient Audio Loop Setup and Lifecycle control
+  useEffect(() => {
+    if (activeProtocol && !protocolBooting) {
+      if (!ambientAudioRef.current) {
+        try {
+          // NOTE: Temporary audio asset. To be replaced with cinematic ambient score.
+          const audio = new Audio('/audio/gotham_ambient.mp3');
+          audio.loop = true;
+          audio.volume = isMuted ? 0 : 0.12;
+          ambientAudioRef.current = audio;
+          audio.play().catch(err => {
+            console.warn('Ambient audio play blocked or missing:', err);
+          });
+        } catch (e) {
+          console.warn('Ambient audio failed to initialize:', e);
+        }
+      } else {
+        ambientAudioRef.current.volume = isMuted ? 0 : 0.12;
+      }
+    } else {
+      if (ambientAudioRef.current) {
+        ambientAudioRef.current.pause();
+        ambientAudioRef.current = null;
+      }
+    }
+
+    return () => {
+      if (!activeProtocol && ambientAudioRef.current) {
+        ambientAudioRef.current.pause();
+        ambientAudioRef.current = null;
+      }
+    };
+  }, [activeProtocol, protocolBooting, isMuted]);
+
+  const toggleMute = () => {
+    setIsMuted(prev => {
+      const newMute = !prev;
+      if (ambientAudioRef.current) {
+        ambientAudioRef.current.volume = newMute ? 0 : 0.12;
+        if (!newMute) {
+          ambientAudioRef.current.play().catch(e => console.warn(e));
+        }
+      }
+      return newMute;
+    });
+  };
 
   if (booting) {
     return <BootScreen onComplete={finishBooting} />;
@@ -249,31 +302,39 @@ function App() {
         <div className="h-10 border border-[#121d2d] bg-[#080d14]/90 rounded-sm flex items-center justify-between px-4 shrink-0 select-none z-10 shadow-lg relative mb-4">
           <div className="text-[9px] sm:text-xs text-accent font-bold tracking-widest flex items-center space-x-2">
             <span className="w-1.5 h-1.5 bg-[#c5a059] rounded-full animate-ping" />
-            <span className="truncate">CLASSIFIED // WAYNE ENTERPRISES INTERNAL USE ONLY</span>
+            <span className="truncate">CLASSIFIED // LEVEL 7 CLEARANCE REQUIRED // WAYNE ENTERPRISES INTERNAL</span>
           </div>
           <div className="text-[9px] sm:text-xs text-[#78909c]/60 font-semibold tracking-widest hidden md:block">
             GRID: SECTOR 4-G (EAST END)
           </div>
-          <div className="text-[9px] sm:text-xs text-[#c5a059]/80 font-bold uppercase tracking-wider">
-            ORACLE LINK: ACTIVE
+          <div className="flex items-center space-x-2 shrink-0">
+            <span className="text-[9px] sm:text-xs text-[#c5a059]/80 font-bold uppercase tracking-wider">
+              ORACLE FEED: ACTIVE
+            </span>
+            <button 
+              onClick={toggleMute}
+              className="text-[9px] text-[#c5a059] hover:text-white font-bold border border-[#121d2d] bg-[#0c121e] px-2 py-0.5 rounded-sm transition-all cursor-pointer inline-flex items-center"
+            >
+              <span>{isMuted ? '🔇 MUTED' : '🔊 ACTIVE'}</span>
+            </button>
           </div>
         </div>
 
         {/* Tactical Panels Grid */}
         <div className="flex-grow flex flex-col lg:flex-row gap-4 min-h-0 z-10 relative">
           
-          {/* Left Sidebar: Threat Feed & Surveillance */}
+          {/* Left Sidebar: Resistance Map & Network Monitoring */}
           <div className="w-full lg:w-64 shrink-0 flex flex-row lg:flex-col gap-4">
-            <ThreatFeedPanel />
-            <SurveillancePanel />
+            <ResistanceMapPanel />
+            <NetworkMonitoringPanel />
           </div>
 
           {/* Center Column: Interactive Command Terminal Console */}
           <div className="flex-grow flex flex-col min-h-0 border border-[#121d2d] bg-[#060a12]/80 backdrop-blur-sm rounded-sm shadow-[0_10px_35px_rgba(0,0,0,0.7)]">
             {/* Console Pane Header Chrome */}
             <div className="h-9 border-b border-[#121d2d] bg-[#0c121e]/70 flex items-center justify-between px-4 shrink-0 select-none">
-              <span className="text-[10px] font-bold text-accent tracking-wider">// COMMAND CONSOLE // INTEL INTAKE</span>
-              <span className="text-[9px] font-semibold text-[#78909c]/50">LINK TYPE: ENCRYPTED</span>
+              <span className="text-[10px] font-bold text-accent tracking-wider">// COMMAND CONSOLE // INTEL FEED</span>
+              <span className="text-[9px] font-semibold text-[#78909c]/50">LINK TYPE: SECURE</span>
             </div>
 
             {/* Scrollable Terminal Output Buffer */}
@@ -306,9 +367,9 @@ function App() {
             </div>
           </div>
 
-          {/* Right Sidebar: Utility Belt & Mission dossier */}
+          {/* Right Sidebar: Arsenal & Mission Control */}
           <div className="w-full lg:w-64 shrink-0 flex flex-row lg:flex-col gap-4">
-            <UtilityBeltPanel />
+            <ArsenalPanel />
             <MissionControlPanel activeIndex={activeMissionIndex} />
           </div>
 
@@ -317,8 +378,15 @@ function App() {
         {/* Global Batcomputer Footer Macro Click Command Bar */}
         <div className="border border-[#121d2d] bg-[#080d14]/95 px-4 py-3 sm:px-5 mt-4 flex flex-wrap gap-2 shrink-0 select-none justify-center sm:justify-start rounded-sm z-10 shadow-md">
           <span className="text-[10px] text-[#78909c]/40 font-bold self-center mr-2 tracking-wider select-none uppercase hidden sm:inline">
-            SYSTEM MACROS:
+            INTEL PROTOCOLS:
           </span>
+          <button 
+            type="button"
+            onClick={() => executeCommand('intel')}
+            className="text-xs font-mono px-3 py-1.5 border border-[#121d2d] hover:border-accent hover:text-accent bg-[#060a12] text-[#78909c] transition-colors rounded-sm cursor-pointer select-none font-semibold text-[#c5a059]"
+          >
+            [ Intel ]
+          </button>
           <button 
             type="button"
             onClick={() => executeCommand('mission')}
@@ -328,17 +396,17 @@ function App() {
           </button>
           <button 
             type="button"
-            onClick={() => executeCommand('villains')}
+            onClick={() => executeCommand('arsenal')}
             className="text-xs font-mono px-3 py-1.5 border border-[#121d2d] hover:border-accent hover:text-accent bg-[#060a12] text-[#78909c] transition-colors rounded-sm cursor-pointer select-none"
           >
-            [ Villains ]
+            [ Arsenal ]
           </button>
           <button 
             type="button"
-            onClick={() => executeCommand('gadgets')}
+            onClick={() => executeCommand('status')}
             className="text-xs font-mono px-3 py-1.5 border border-[#121d2d] hover:border-accent hover:text-accent bg-[#060a12] text-[#78909c] transition-colors rounded-sm cursor-pointer select-none"
           >
-            [ Gadgets ]
+            [ Status ]
           </button>
           <button 
             type="button"
@@ -346,13 +414,6 @@ function App() {
             className="text-xs font-mono px-3 py-1.5 border border-[#121d2d] hover:border-accent hover:text-accent bg-[#060a12] text-[#78909c] transition-colors rounded-sm cursor-pointer select-none"
           >
             [ Batcomputer ]
-          </button>
-          <button 
-            type="button"
-            onClick={() => executeCommand('neofetch')}
-            className="text-xs font-mono px-3 py-1.5 border border-[#121d2d] hover:border-accent hover:text-accent bg-[#060a12] text-[#78909c] transition-colors rounded-sm cursor-pointer select-none"
-          >
-            [ Neofetch ]
           </button>
           <div className="flex-grow" />
           <button 

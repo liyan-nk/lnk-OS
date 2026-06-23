@@ -1,4 +1,4 @@
-import type { BioInfo, ProjectItem, SkillCategory, EducationItem, LeadershipItem, WorkExperienceItem, ContactInfo } from './types';
+import type { BioInfo, ProjectItem, SkillCategory, EducationItem, LeadershipItem, WorkExperienceItem, ContactInfo, GothamMission } from './types';
 
 // ==========================================
 // 1. Personal Information (Bio)
@@ -134,4 +134,70 @@ export const interests: string[] = [
   "Multimedia",
   "AI Tools",
   "Building Digital Products"
+];
+
+// ==========================================
+// 10. Gotham / Classified OS Missions
+// ==========================================
+export const GOTHAM_MISSIONS: GothamMission[] = [
+  {
+    id: "OP-LNK-OS",
+    target: "LNK OS DEVELOPMENT",
+    status: "ACTIVE",
+    objective: "Build a highly-customized portfolio mainframe to serve as LNK's digital core.",
+    priority: "MAXIMUM",
+    location: "Workspace Root",
+    action: "Refactor terminal engine, integrate isolated history buffers, secure protocol overrides.",
+    equipment: ["React 19", "Tailwind CSS v4", "TypeScript"]
+  },
+  {
+    id: "OP-CAMPUS-ECHO",
+    target: "CAMPUS ECHO DEPLOYMENT",
+    status: "IN DEVELOPMENT",
+    objective: "Deploy an anonymous campus communication platform for secure student discussions.",
+    priority: "CRITICAL",
+    location: "KMCT CEETM Grid",
+    action: "Finalize backend REST endpoints, optimize real-time message relays, configure client routing.",
+    equipment: ["TypeScript", "Express.js", "MongoDB", "Pusher"]
+  },
+  {
+    id: "OP-SKILLFORGE",
+    target: "SKILLFORGE EXPANSION",
+    status: "ACTIVE",
+    objective: "Expand the personal growth and skill tracking application with real-time performance analytics.",
+    priority: "HIGH",
+    location: "Local Host Buffer",
+    action: "Integrate charting nodes, implement browser session data synchronization.",
+    equipment: ["Next.js", "PostgreSQL", "Prisma", "Recharts"]
+  },
+  {
+    id: "OP-LINUX-MASTERY",
+    target: "LINUX MASTERY",
+    status: "TRAINING",
+    objective: "Master shell architecture, system administration, and low-level kernel diagnostics.",
+    priority: "HIGH",
+    location: "Local Mainframe",
+    action: "Automate server maintenance routines, configure quantum shell loops, lock network firewalls.",
+    equipment: ["Bash", "Systemd", "Vim", "SSH"]
+  },
+  {
+    id: "OP-CONSISTENCY",
+    target: "CONSISTENCY BUILDING",
+    status: "MONITORED",
+    objective: "Maintain continuous daily git contributions and routine capability upgrades.",
+    priority: "CRITICAL",
+    location: "Core Persona Buffer",
+    action: "Perform daily operational checks, audit study buffers, execute discipline protocols.",
+    equipment: ["Discipline Engine", "Focus Locker", "Task Matrix"]
+  },
+  {
+    id: "OP-OPEN-SOURCE",
+    target: "OPEN-SOURCE CONTRIBUTIONS",
+    status: "IN PROGRESS",
+    objective: "Identify and resolve bug dossiers in critical open-source repositories.",
+    priority: "MEDIUM",
+    location: "Global Dev Grid",
+    action: "Submit clean pull requests, review documentation scripts, coordinate patch releases.",
+    equipment: ["Git", "GitHub Node", "Issue Tracker"]
+  }
 ];

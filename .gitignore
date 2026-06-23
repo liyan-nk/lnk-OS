@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Audio Assets (cinematic audio to be replaced/loaded locally)
+public/audio/gotham_ambient.mp3
+public/audio/oracle_activation.mp3
