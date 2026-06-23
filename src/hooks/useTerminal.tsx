@@ -27,7 +27,7 @@ export const WELCOME_ITEM: HistoryItem = {
   )
 };
 
-export type ThemeType = 'mint' | 'ubuntu' | 'matrix' | 'amber';
+export type ThemeType = 'mint' | 'ubuntu' | 'matrix' | 'amber' | 'gotham';
 
 export const ALIAS_MAP: Record<string, string> = {
   project: 'projects',
@@ -64,14 +64,18 @@ export interface AutocompleteResult {
   multipleMatches: string[];
 }
 
-export function getAutocomplete(input: string): AutocompleteResult {
+export function getAutocomplete(input: string, isGotham: boolean = false): AutocompleteResult {
   const trimmed = input.trim().toLowerCase();
   
+  const activeCommands = isGotham
+    ? [...PRIMARY_COMMANDS, 'mission', 'villains', 'gadgets', 'batcomputer', 'alfred']
+    : PRIMARY_COMMANDS;
+
   if (!input) {
     return {
       completedValue: null,
       ghostSuffix: '',
-      multipleMatches: PRIMARY_COMMANDS
+      multipleMatches: activeCommands
     };
   }
 
@@ -79,7 +83,7 @@ export function getAutocomplete(input: string): AutocompleteResult {
 
   if (spaceIdx === -1) {
     // 1. Root command completion
-    const matches = PRIMARY_COMMANDS.filter(cmd => cmd.startsWith(trimmed));
+    const matches = activeCommands.filter(cmd => cmd.startsWith(trimmed));
     if (matches.length === 1) {
       return {
         completedValue: matches[0],
@@ -147,11 +151,15 @@ function getLevenshteinDistance(a: string, b: string): number {
   return tmp[a.length][b.length];
 }
 
-function getClosestMatches(input: string): string[] {
+function getClosestMatches(input: string, isGotham: boolean = false): string[] {
   let minDistance = Infinity;
   let matches: string[] = [];
 
-  for (const cmd of PRIMARY_COMMANDS) {
+  const activeCommands = isGotham
+    ? [...PRIMARY_COMMANDS, 'mission', 'villains', 'gadgets', 'batcomputer', 'alfred']
+    : PRIMARY_COMMANDS;
+
+  for (const cmd of activeCommands) {
     const dist = getLevenshteinDistance(input, cmd);
     if (dist < minDistance) {
       minDistance = dist;
@@ -175,9 +183,18 @@ function getClosestMatches(input: string): string[] {
 export const useTerminal = () => {
   const [history, setHistory] = useState<HistoryItem[]>([WELCOME_ITEM]);
   const [booting, setBooting] = useState<boolean>(true);
+  
+  const [gothamMode, setGothamMode] = useState<boolean>(() => {
+    return sessionStorage.getItem('lnk-os-gotham-active') === 'true';
+  });
+  const [gothamBooting, setGothamBooting] = useState<boolean>(false);
+
   const [activeTheme, setActiveTheme] = useState<ThemeType>(() => {
+    const isGotham = sessionStorage.getItem('lnk-os-gotham-active') === 'true';
+    if (isGotham) return 'gotham';
+
     const saved = localStorage.getItem('lnk-os-theme');
-    if (saved === 'mint' || saved === 'ubuntu' || saved === 'matrix' || saved === 'amber') {
+    if (saved === 'mint' || saved === 'ubuntu' || saved === 'matrix' || saved === 'amber' || saved === 'gotham') {
       return saved as ThemeType;
     }
     return 'mint';
@@ -194,6 +211,126 @@ export const useTerminal = () => {
 
     const { command, args } = parseCommand(trimmedInput);
     const resolvedCommand = ALIAS_MAP[command] || command;
+
+    // Gotham Protocol Decryption Trigger
+    if (resolvedCommand === 'batman') {
+      const isFirstTime = localStorage.getItem('lnk-os-secret-gotham-unlocked') !== 'true';
+      setHistory((prev) => [
+        ...prev,
+        {
+          id: Math.random().toString(36).substring(2, 9),
+          command: trimmedInput,
+          output: (
+            <div className="space-y-1.5 font-mono">
+              <div className="text-[#c5a059]">Identity confirmed.</div>
+              {isFirstTime && (
+                <div className="text-accent font-bold text-xs animate-pulse border border-accent/20 px-2.5 py-1 bg-accent/5 rounded-xs inline-block">
+                  Secret Discovered: Gotham Protocol Unlocked.
+                </div>
+              )}
+            </div>
+          )
+        }
+      ]);
+      
+      setTimeout(() => {
+        setHistory((prev) => [
+          ...prev,
+          {
+            id: Math.random().toString(36).substring(2, 9),
+            command: '',
+            output: <div className="text-[#c5a059] font-bold">Welcome back, Bruce.</div>
+          }
+        ]);
+      }, 700);
+
+      setTimeout(() => {
+        setGothamBooting(true);
+        localStorage.setItem('lnk-os-secret-gotham-unlocked', 'true');
+      }, 1400);
+
+      return;
+    }
+
+    // Gotham Protocol Exit Intercept
+    if (resolvedCommand === 'exit') {
+      if (gothamMode) {
+        setHistory((prev) => [
+          ...prev,
+          {
+            id: Math.random().toString(36).substring(2, 9),
+            command: trimmedInput,
+            output: <div className="text-red-500 font-semibold font-mono">There is no exit.</div>
+          }
+        ]);
+        return;
+      }
+    }
+
+    // Gotham Protocol Alfred Exit
+    if (resolvedCommand === 'alfred') {
+      if (gothamMode) {
+        setHistory((prev) => [
+          ...prev,
+          {
+            id: Math.random().toString(36).substring(2, 9),
+            command: trimmedInput,
+            output: <div className="text-[#c5a059]">Very good, sir. Returning to reality...</div>
+          }
+        ]);
+
+        setTimeout(() => {
+          setGothamMode(false);
+          sessionStorage.removeItem('lnk-os-gotham-active');
+          const normalTheme = localStorage.getItem('lnk-os-theme') || 'mint';
+          setActiveTheme(normalTheme as ThemeType);
+          setHistory([WELCOME_ITEM]); // Reset back to home screen
+        }, 1200);
+
+        return;
+      }
+    }
+
+    // If Gotham Mode is NOT active, intercept and hide Gotham-only commands
+    const GOTHAM_ONLY_COMMANDS = ['mission', 'villains', 'gadgets', 'batcomputer', 'alfred'];
+    if (GOTHAM_ONLY_COMMANDS.includes(resolvedCommand) && !gothamMode) {
+      const suggestions = getClosestMatches(command, false);
+      let outputResult: React.ReactNode;
+      if (suggestions.length > 0) {
+        outputResult = (
+          <div className="text-red-500 space-y-2">
+            <p>Command not found: '{trimmedInput}'</p>
+            <div className="text-terminal">
+              <p>Did you mean:</p>
+              <div className="pl-4 mt-1 flex flex-col gap-1 items-start">
+                {suggestions.map((s) => (
+                  <CommandLink key={s} command={s}>{s}</CommandLink>
+                ))}
+              </div>
+            </div>
+            <p className="text-muted text-xs">
+              Type <CommandLink command="help">help</CommandLink> to view available commands.
+            </p>
+          </div>
+        );
+      } else {
+        outputResult = (
+          <div className="text-red-500">
+            Command not found: '{trimmedInput}'. Type <CommandLink command="help">help</CommandLink> for available commands.
+          </div>
+        );
+      }
+
+      setHistory((prev) => [
+        ...prev,
+        {
+          id: Math.random().toString(36).substring(2, 9),
+          command: trimmedInput,
+          output: outputResult,
+        },
+      ]);
+      return;
+    }
 
     if (resolvedCommand === 'clear') {
       setHistory([]);
@@ -264,7 +401,7 @@ export const useTerminal = () => {
     if (resolvedCommand in commandRegistry) {
       outputResult = commandRegistry[resolvedCommand]();
     } else {
-      const suggestions = getClosestMatches(command);
+      const suggestions = getClosestMatches(command, gothamMode);
       if (suggestions.length > 0) {
         outputResult = (
           <div className="text-red-500 space-y-2">
@@ -291,15 +428,52 @@ export const useTerminal = () => {
       }
     }
 
+    // Roll dynamic Gotham atmospheric events & quotes (rarity: 3% alerts, 1% quotes)
+    let finalOutput = outputResult;
+    if (gothamMode) {
+      const rand = Math.random();
+      if (rand < 0.03) {
+        const ambientAlerts = [
+          "[ Bat-Signal detected in sector 4-G ]",
+          "[ Rain intensity increasing. Wind speed 22kt ]",
+          "[ Arkham Asylum gate 3 status check... OK ]",
+          "[ Surveillance sweeps show activity near Crime Alley ]",
+          "[ Batmobile remote link active and parsing telemetry ]"
+        ];
+        const alert = ambientAlerts[Math.floor(Math.random() * ambientAlerts.length)];
+        finalOutput = (
+          <div className="space-y-1.5">
+            <div className="text-[#c5a059]/40 text-xs italic font-semibold">{alert}</div>
+            {outputResult}
+          </div>
+        );
+      } else if (rand >= 0.03 && rand < 0.04) {
+        const quotes = [
+          "\"I am vengeance.\"",
+          "\"A hero can be anyone.\"",
+          "\"The night is darkest just before the dawn.\"",
+          "\"Why do we fall? So we can learn to pick ourselves up.\"",
+          "\"I am the night.\""
+        ];
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        finalOutput = (
+          <div className="space-y-1.5">
+            <div className="text-[#c5a059]/35 text-xs italic font-semibold">{quote}</div>
+            {outputResult}
+          </div>
+        );
+      }
+    }
+
     setHistory((prev) => [
       ...prev,
       {
         id: Math.random().toString(36).substring(2, 9),
         command: trimmedInput,
-        output: outputResult,
+        output: finalOutput,
       },
     ]);
-  }, [activeTheme]);
+  }, [activeTheme, gothamMode]);
 
   // Listen for global execution event dispatches
   useEffect(() => {
@@ -317,6 +491,13 @@ export const useTerminal = () => {
 
   const finishBooting = useCallback(() => {
     setBooting(false);
+  }, []);
+
+  const finishGothamBoot = useCallback(() => {
+    setGothamBooting(false);
+    setGothamMode(true);
+    sessionStorage.setItem('lnk-os-gotham-active', 'true');
+    setActiveTheme('gotham');
   }, []);
 
   const handleTabComplete = useCallback((input: string): string | null => {
@@ -372,7 +553,7 @@ export const useTerminal = () => {
     }
 
     // 2. Fetch matches using getAutocomplete
-    const { completedValue, multipleMatches } = getAutocomplete(input);
+    const { completedValue, multipleMatches } = getAutocomplete(input, gothamMode);
 
     if (completedValue) {
       return completedValue;
@@ -399,7 +580,7 @@ export const useTerminal = () => {
     }
 
     return null;
-  }, []);
+  }, [gothamMode]);
 
   return {
     history,
@@ -409,5 +590,10 @@ export const useTerminal = () => {
     executeCommand,
     finishBooting,
     handleTabComplete,
+    gothamMode,
+    gothamBooting,
+    setGothamBooting,
+    setGothamMode,
+    finishGothamBoot,
   };
 };

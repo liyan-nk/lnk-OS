@@ -53,6 +53,14 @@
   --accent-color: #ffcc00;
 }
 
+:root[data-theme="gotham"] {
+  --bg-color: #060a12;
+  --terminal-color: #78909c;
+  --muted-color: #37474f;
+  --border-color: #121d2d;
+  --accent-color: #c5a059;
+}
+
 /* Retro text glowing styles for glowing terminal themes */
 :root[data-theme="matrix"] body,
 :root[data-theme="matrix"] pre,
@@ -68,6 +76,14 @@
 :root[data-theme="amber"] div,
 :root[data-theme="amber"] button {
   text-shadow: 0 0 5px rgba(255, 176, 0, 0.45);
+}
+
+:root[data-theme="gotham"] body,
+:root[data-theme="gotham"] pre,
+:root[data-theme="gotham"] span,
+:root[data-theme="gotham"] div,
+:root[data-theme="gotham"] button {
+  text-shadow: 0 0 5px rgba(197, 160, 89, 0.35);
 }
 
 /* Custom Base Elements */

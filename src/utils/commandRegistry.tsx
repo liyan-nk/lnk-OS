@@ -17,24 +17,55 @@ import { CommandLink } from '../components/common/CommandLink';
  * Uses Liyan's real resume and LinkedIn data.
  */
 export const commandRegistry: Record<string, () => React.ReactNode> = {
-  help: () => (
-    <div className="space-y-1.5 text-terminal">
-      <p className="text-muted/65 mb-1.5">// LNK OS Command Dictionary (Click any command to execute)</p>
-      <div className="space-y-1">
-        <p>  <CommandLink command="about">about</CommandLink>    - Profile summary and background</p>
-        <p>  <CommandLink command="projects">projects</CommandLink> - View developed software projects</p>
-        <p>  <CommandLink command="skills">skills</CommandLink>   - List core language and framework proficiencies</p>
-        <p>  <CommandLink command="resume">resume</CommandLink> / <CommandLink command="cv">cv</CommandLink>     - View complete curriculum vitae summary</p>
-        <p>  <CommandLink command="journey">journey</CommandLink>  - View chronological career and learning timeline</p>
-        <p>  <CommandLink command="contact">contact</CommandLink>  - View email and communication links</p>
-        <p>  <CommandLink command="whoami">whoami</CommandLink>   - Print current user identity card</p>
-        <p>  <CommandLink command="neofetch">neofetch</CommandLink> - Display stylized developer system details summary</p>
-        <p>  <CommandLink command="theme">theme</CommandLink>    - List available themes and switch variants</p>
-        <p>  <CommandLink command="home">home</CommandLink>     - Return terminal to the original welcome logs</p>
-        <p>  <CommandLink command="clear">clear</CommandLink>    - Clear console display buffer</p>
+  help: () => {
+    const isGotham = document.documentElement.getAttribute('data-theme') === 'gotham';
+    if (isGotham) {
+      return (
+        <div className="space-y-1.5 text-terminal select-text">
+          <p className="text-[#c5a059]/80 mb-1.5 font-bold">// GOTHAM PROTOCOL OVERLAY ACTIVE (Click to execute)</p>
+          <div className="space-y-1">
+            <p className="text-[#c5a059]/60 font-semibold font-mono border-b border-[#c5a059]/20 pb-0.5 mb-1">Standard Commands:</p>
+            <p>  <CommandLink command="about">about</CommandLink>    - Profile summary and background</p>
+            <p>  <CommandLink command="projects">projects</CommandLink> - View developed software projects</p>
+            <p>  <CommandLink command="skills">skills</CommandLink>   - List core language and framework proficiencies</p>
+            <p>  <CommandLink command="resume">resume</CommandLink>   - View complete curriculum vitae summary</p>
+            <p>  <CommandLink command="journey">journey</CommandLink>  - View chronological career and learning timeline</p>
+            <p>  <CommandLink command="contact">contact</CommandLink>  - View email and communication links</p>
+            <p>  <CommandLink command="whoami">whoami</CommandLink>   - Print current user identity card</p>
+            <p>  <CommandLink command="neofetch">neofetch</CommandLink> - Display stylized developer system details summary</p>
+            <p>  <CommandLink command="theme">theme</CommandLink>    - List available themes and switch variants</p>
+            <p>  <CommandLink command="home">home</CommandLink>     - Return terminal to the original welcome logs</p>
+            <p>  <CommandLink command="clear">clear</CommandLink>    - Clear console display buffer</p>
+            
+            <p className="text-[#c5a059]/60 font-semibold font-mono border-b border-[#c5a059]/20 pb-0.5 mt-3.5 mb-1">Gotham Protocol Commands:</p>
+            <p>  <CommandLink command="mission">mission</CommandLink>  - Retrieve tactical assignment parameters</p>
+            <p>  <CommandLink command="villains">villains</CommandLink> - Threat assessment of active criminal targets</p>
+            <p>  <CommandLink command="gadgets">gadgets</CommandLink>  - Technical specifications of active tactical gear</p>
+            <p>  <CommandLink command="batcomputer">batcomputer</CommandLink> - Batcave mainframe diagnostics and telemetry</p>
+            <p>  <CommandLink command="alfred">alfred</CommandLink>   - Terminate connection and restore original state</p>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="space-y-1.5 text-terminal">
+        <p className="text-muted/65 mb-1.5">// LNK OS Command Dictionary (Click any command to execute)</p>
+        <div className="space-y-1">
+          <p>  <CommandLink command="about">about</CommandLink>    - Profile summary and background</p>
+          <p>  <CommandLink command="projects">projects</CommandLink> - View developed software projects</p>
+          <p>  <CommandLink command="skills">skills</CommandLink>   - List core language and framework proficiencies</p>
+          <p>  <CommandLink command="resume">resume</CommandLink> / <CommandLink command="cv">cv</CommandLink>     - View complete curriculum vitae summary</p>
+          <p>  <CommandLink command="journey">journey</CommandLink>  - View chronological career and learning timeline</p>
+          <p>  <CommandLink command="contact">contact</CommandLink>  - View email and communication links</p>
+          <p>  <CommandLink command="whoami">whoami</CommandLink>   - Print current user identity card</p>
+          <p>  <CommandLink command="neofetch">neofetch</CommandLink> - Display stylized developer system details summary</p>
+          <p>  <CommandLink command="theme">theme</CommandLink>    - List available themes and switch variants</p>
+          <p>  <CommandLink command="home">home</CommandLink>     - Return terminal to the original welcome logs</p>
+          <p>  <CommandLink command="clear">clear</CommandLink>    - Clear console display buffer</p>
+        </div>
       </div>
-    </div>
-  ),
+    );
+  },
   about: () => (
     <div className="space-y-2.5 text-terminal max-w-2xl">
       <div className="flex items-center space-x-2">
@@ -267,6 +298,42 @@ export const commandRegistry: Record<string, () => React.ReactNode> = {
   ),
   neofetch: () => {
     const activeTheme = document.documentElement.getAttribute('data-theme') || 'mint';
+    const isGotham = activeTheme === 'gotham';
+    const isUnlocked = localStorage.getItem('lnk-os-secret-gotham-unlocked') === 'true';
+
+    if (isGotham) {
+      const batcomputerAscii = `
+       .---.         .---.
+      /     \\  _._  /     \\
+     \\_.-._  \\(_._)/  _.-._/
+          \\ \\  -.-  / /
+           \\ \\     / /
+            \\ '---' /
+             \\     /
+              '---'
+`;
+      return (
+        <div className="flex flex-col sm:flex-row sm:items-start gap-6 font-mono text-sm text-[#78909c] leading-relaxed">
+          <pre className="text-[#c5a059] text-xs font-bold select-none leading-none drop-shadow-[0_0_8px_rgba(197,160,89,0.4)] mx-auto sm:mx-0">
+            {batcomputerAscii}
+          </pre>
+          <div className="space-y-1">
+            <p className="text-[#c5a059] font-bold text-base mb-1.5">batman@batcave</p>
+            <p className="text-[#c5a059]/30">----------------------</p>
+            <p><span className="text-[#c5a059] font-semibold">User:</span> Bruce Wayne</p>
+            <p><span className="text-[#c5a059] font-semibold">Uplink:</span> Batcomputer Mainframe</p>
+            <p><span className="text-[#c5a059] font-semibold">OS:</span> Wayne Secure OS v8.12</p>
+            <p><span className="text-[#c5a059] font-semibold">Location:</span> Batcave, Gotham City</p>
+            <p><span className="text-[#c5a059] font-semibold">Grid Sector:</span> 4-G (Downtown / East End)</p>
+            <p><span className="text-[#c5a059] font-semibold">Status:</span> Operational</p>
+            <p><span className="text-[#c5a059] font-semibold">Satellites:</span> Brother Eye Uplink (Active)</p>
+            <p><span className="text-[#c5a059] font-semibold">Theme:</span> GOTHAM PROTOCOL (OVERLAY)</p>
+            <p><span className="text-[#c5a059] font-semibold">Secrets Unlocked:</span> 1 / 1 (100%)</p>
+          </div>
+        </div>
+      );
+    }
+
     const asciiArt = `
    .---------.
   /         /|
@@ -300,6 +367,184 @@ export const commandRegistry: Record<string, () => React.ReactNode> = {
           <p><span className="text-accent font-semibold">Theme:</span> <span className="uppercase">{activeTheme}</span></p>
           <p><span className="text-accent font-semibold">GitHub:</span> <a href={contactInfo.github} target="_blank" rel="noopener noreferrer" className="hover:underline text-accent/90">{contactInfo.github.replace('https://', '')} ↗</a></p>
           <p><span className="text-accent font-semibold">LinkedIn:</span> <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="hover:underline text-accent/90">{contactInfo.linkedin.replace('https://', '')} ↗</a></p>
+          {isUnlocked && (
+            <p><span className="text-accent font-semibold">Secrets Discovered:</span> 1 / 1</p>
+          )}
+        </div>
+      </div>
+    );
+  },
+  mission: () => {
+    const missions = [
+      {
+        id: "OP-NIGHTFALL",
+        target: "Joker",
+        danger: "EXTREME",
+        location: "Gotham Amusement Mile",
+        details: "Surveillance reports joker gas canisters hidden under the warehouse docks. Secure the perimeter immediately.",
+        action: "Deploy batmobile and disable ventilation systems."
+      },
+      {
+        id: "OP-FEARLESS",
+        target: "Scarecrow",
+        danger: "CRITICAL",
+        location: "Arkham Asylum Sewer Outlets",
+        details: "Anomalous fear toxin dispersion detected in water supply grid 3-B. Pinpoint the distribution node.",
+        action: "Equip rebreather and trace chemical residue."
+      },
+      {
+        id: "OP-ENIGMA",
+        target: "Riddler",
+        danger: "MODERATE",
+        location: "Gotham City Cathedral Tower",
+        details: "Cryptographic relay intercepting police communications. Decrypt puzzle sequence on frequencies 88.4 / 92.1.",
+        action: "Establish remote mainframe tap to counter-hack."
+      },
+      {
+        id: "OP-ICEBOX",
+        target: "Mr. Freeze",
+        danger: "HIGH",
+        location: "GothCorp Cryo-Gen Labs",
+        details: "Sub-zero energy surge threatening the city grid. Internal temperature dropped to -50C.",
+        action: "Activate thermal shielding armor modules."
+      }
+    ];
+
+    const mission = missions[Math.floor(Math.random() * missions.length)];
+    
+    return (
+      <div className="space-y-3 font-mono text-sm text-[#78909c] max-w-xl select-text">
+        <div className="border border-[#c5a059]/40 bg-[#0c121e]/50 p-4 rounded-sm shadow-[0_0_15px_rgba(197,160,89,0.1)]">
+          <div className="flex justify-between items-center border-b border-[#c5a059]/20 pb-2 mb-3">
+            <span className="text-[#c5a059] font-bold tracking-widest text-xs">WAYNE ENTERPRISES SECURE DOSSIER</span>
+            <span className="text-[10px] font-semibold border border-[#c5a059]/40 px-2 py-0.5 rounded-sm text-[#c5a059]/80 uppercase">{mission.id}</span>
+          </div>
+          <div className="space-y-2">
+            <p><span className="text-[#c5a059] font-semibold">TARGET:</span> {mission.target}</p>
+            <p><span className="text-[#c5a059] font-semibold">DANGER LEVEL:</span> <span className="text-red-500 font-bold animate-pulse">{mission.danger}</span></p>
+            <p><span className="text-[#c5a059] font-semibold">LAST KNOWN LOC:</span> {mission.location}</p>
+            <p className="text-sm leading-relaxed border-l-2 border-[#c5a059]/40 pl-3 py-0.5 italic text-[#78909c]/90 bg-[#c5a059]/5 rounded-r-xs">
+              "{mission.details}"
+            </p>
+            <p className="pt-1"><span className="text-[#c5a059] font-semibold">TACTICAL DEPLOY:</span> {mission.action}</p>
+          </div>
+        </div>
+        <p className="text-[10px] text-[#78909c]/50 text-center italic">// Telemetry updated via remote uplink //</p>
+      </div>
+    );
+  },
+  villains: () => {
+    const villainList = [
+      { name: "Joker", description: "Clown Prince of Crime. Unpredictable, chaotic, highly dangerous.", status: "CONTAINED", statusColor: "text-emerald-500/70 border-emerald-500/30" },
+      { name: "Scarecrow", description: "Master of Fear. Weaponizes fear toxins to induce mass panic.", status: "CONTAINED", statusColor: "text-emerald-500/70 border-emerald-500/30" },
+      { name: "Riddler", description: "Obsessively leaves puzzles, riddles, and traps. Criminal genius.", status: "CONTAINED", statusColor: "text-emerald-500/70 border-emerald-500/30" },
+      { name: "Penguin", description: "Underworld mob boss operating out of the Iceberg Lounge.", status: "MONITORING", statusColor: "text-amber-500/70 border-amber-500/30" },
+      { name: "Two-Face", description: "Former DA obsessed with duality. Decisions decided by a coin flip.", status: "CONTAINED", statusColor: "text-emerald-500/70 border-emerald-500/30" },
+      { name: "Bane", description: "Highly intelligent mercenary powered by strength-enhancing Venom.", status: "MONITORING", statusColor: "text-amber-500/70 border-amber-500/30" }
+    ];
+
+    const activeIndex = Math.floor(Math.random() * villainList.length);
+    villainList[activeIndex].status = "ACTIVE";
+    villainList[activeIndex].statusColor = "text-red-500 font-bold border-red-500 animate-pulse drop-shadow-[0_0_3px_rgba(239,68,68,0.5)]";
+
+    return (
+      <div className="space-y-4 font-mono text-sm text-[#78909c] max-w-2xl select-text">
+        <p className="text-[#c5a059]/80 font-bold mb-1">// SYSTEM ALERT: ACTIVE THREAT DATABASE //</p>
+        <div className="space-y-2.5">
+          {villainList.map((v, idx) => (
+            <div key={idx} className="border border-[#121d2d]/65 bg-[#080d14]/40 p-3 rounded-sm flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2.5 shadow-sm">
+              <div className="space-y-0.5">
+                <span className="text-[#c5a059] font-bold text-base tracking-wide">{v.name}</span>
+                <p className="text-xs text-[#78909c]/80 leading-relaxed">{v.description}</p>
+              </div>
+              <span className={`text-xs font-mono border px-2.5 py-0.5 rounded-sm uppercase tracking-wider shrink-0 self-start sm:self-center ${v.statusColor}`}>
+                [ {v.status} ]
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  },
+  gadgets: () => {
+    const gadgets = [
+      { name: "Batarang", type: "Ranged Weapon / Tactical tool", quantity: "6", battery: "N/A", status: "READY", desc: "Carbon fiber folding shuriken designed for non-lethal takedowns and trigger activation." },
+      { name: "Grapple Gun", type: "Ascent / Mobility Device", quantity: "1", battery: "94%", status: "READY", desc: "High-tensile steel wire launcher with pneumatic anchor hook. Max load: 350kg." },
+      { name: "Explosive Gel", type: "Demolition / Tactical", quantity: "3 charges", battery: "N/A", status: "READY", desc: "Liquid aerosol compound triggered remotely by wireless frequency signal." },
+      { name: "Smoke Pellets", type: "Concealment / Escape", quantity: "4", battery: "N/A", status: "READY", desc: "Condenses into high-density fog block on hard impact. Masks infrared signatures." },
+      { name: "Cryptographic Sequencer", type: "Decryption / Wiretap", quantity: "1", battery: "81%", status: "READY", desc: "Wayne Ent. mainframe link capable of brute-forcing secure wireless grids." }
+    ];
+
+    return (
+      <div className="space-y-4 font-mono text-sm text-[#78909c] max-w-2xl select-text">
+        <p className="text-[#c5a059]/80 font-bold mb-1">// WEAPONRY & UTILITY BELT INVENTORY //</p>
+        <div className="overflow-x-auto border border-[#121d2d]/60 rounded-sm">
+          <table className="min-w-full divide-y divide-[#121d2d]/60 text-left">
+            <thead className="bg-[#0c121e]/80 text-[#c5a059] font-bold text-xs uppercase tracking-wider">
+              <tr>
+                <th className="px-4 py-3">Gadget Name</th>
+                <th className="px-4 py-3">Tactical Type</th>
+                <th className="px-4 py-3 text-center">Qty / Cell</th>
+                <th className="px-4 py-3 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#121d2d]/40 text-xs">
+              {gadgets.map((g, idx) => (
+                <tr key={idx} className="hover:bg-[#080d14]/40 transition-colors">
+                  <td className="px-4 py-3 font-bold text-white/90">{g.name}</td>
+                  <td className="px-4 py-3 text-[#78909c]/90">{g.type}</td>
+                  <td className="px-4 py-3 text-center">{g.quantity} {g.battery !== 'N/A' && `(${g.battery})`}</td>
+                  <td className="px-4 py-3 text-right text-emerald-500 font-semibold">{g.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  },
+  batcomputer: () => {
+    return (
+      <div className="space-y-4 font-mono text-sm text-[#78909c] max-w-xl select-text">
+        <p className="text-[#c5a059]/80 font-bold">// BATCOMPUTER DIAGNOSTICS & TELEMETRY //</p>
+        
+        <div className="space-y-3.5 border border-[#121d2d]/60 bg-[#080d14]/30 p-4 rounded-sm">
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs text-[#78909c]/70">
+              <span>Mainframe CPU Load:</span>
+              <span className="text-[#c5a059] font-semibold">12.4%</span>
+            </div>
+            <div className="w-full bg-[#121d2d]/60 h-2 rounded-xs overflow-hidden">
+              <div className="bg-[#c5a059] h-full" style={{ width: '12.4%' }} />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs text-[#78909c]/70">
+              <span>Memory Utilization (Buffer Cache):</span>
+              <span className="text-[#c5a059] font-semibold">41.8 GB / 128 GB</span>
+            </div>
+            <div className="w-full bg-[#121d2d]/60 h-2 rounded-xs overflow-hidden">
+              <div className="bg-[#c5a059] h-full" style={{ width: '32.6%' }} />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs text-[#78909c]/70">
+              <span>Batcave Auxiliary Power (Thermal + Hydro):</span>
+              <span className="text-[#c5a059] font-semibold">98.2%</span>
+            </div>
+            <div className="w-full bg-[#121d2d]/60 h-2 rounded-xs overflow-hidden">
+              <div className="bg-[#c5a059] h-full" style={{ width: '98.2%' }} />
+            </div>
+          </div>
+          
+          <div className="pt-2 grid grid-cols-2 gap-y-1.5 text-xs border-t border-[#121d2d]/30 text-[#78909c]/80">
+            <p><span className="text-[#c5a059]/80 font-medium">Remote Uplink:</span> BROTHER EYE [SECURE]</p>
+            <p><span className="text-[#c5a059]/80 font-medium">Batmobile Link:</span> ONLINE</p>
+            <p><span className="text-[#c5a059]/80 font-medium">Network Encryption:</span> Quantum 2048-bit</p>
+            <p><span className="text-[#c5a059]/80 font-medium">Intrusion Attempts:</span> 0 (Last 24h)</p>
+          </div>
         </div>
       </div>
     );

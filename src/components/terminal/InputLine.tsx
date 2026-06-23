@@ -4,18 +4,19 @@ import { getAutocomplete } from '../../hooks/useTerminal';
 interface InputLineProps {
   onSubmit: (input: string) => void;
   onTabComplete: (input: string) => string | null;
+  isGotham?: boolean;
 }
 
 /**
  * Custom console input line with custom cursor styling:
  * Solid blinking cursor when focused, hollow box outline when blurred.
  */
-export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete }) => {
+export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, isGotham = false }) => {
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const ghostSuggestion = getAutocomplete(inputValue).ghostSuffix;
+  const ghostSuggestion = getAutocomplete(inputValue, isGotham).ghostSuffix;
 
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
@@ -42,7 +43,7 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete })
     if (e.key === 'Tab') {
       e.preventDefault();
       
-      const { completedValue } = getAutocomplete(inputValue);
+      const { completedValue } = getAutocomplete(inputValue, isGotham);
       if (completedValue) {
         setInputValue(completedValue);
         setTimeout(() => {
@@ -76,7 +77,7 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete })
 
   return (
     <form onSubmit={handleSubmit} className="flex items-center w-full font-mono text-terminal mt-1">
-      <span className="text-accent mr-2 shrink-0">visitor@lnk-os:~$</span>
+      <span className="text-accent mr-2 shrink-0">{isGotham ? 'batman@gotham:~$' : 'visitor@lnk-os:~$'}</span>
       <div className="relative flex-grow flex items-center">
         <input
           ref={inputRef}

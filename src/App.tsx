@@ -2,9 +2,21 @@ import { useEffect, useRef } from 'react';
 import { useTerminal, ALIAS_MAP } from './hooks/useTerminal';
 import { BootScreen } from './components/terminal/BootScreen';
 import { InputLine } from './components/terminal/InputLine';
+import { GothamBootScreen } from './components/terminal/GothamBootScreen';
+import { GothamRainEffect } from './components/terminal/GothamRainEffect';
 
 function App() {
-  const { history, booting, theme, executeCommand, finishBooting, handleTabComplete } = useTerminal();
+  const { 
+    history, 
+    booting, 
+    theme, 
+    executeCommand, 
+    finishBooting, 
+    handleTabComplete,
+    gothamMode,
+    gothamBooting,
+    finishGothamBoot
+  } = useTerminal();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to top of new reading-focused commands (resume, cv, projects, journey),
@@ -42,11 +54,18 @@ function App() {
     return <BootScreen onComplete={finishBooting} />;
   }
 
+  if (gothamBooting) {
+    return <GothamBootScreen onComplete={finishGothamBoot} />;
+  }
+
   return (
     <div className="min-h-screen bg-[#07090e] flex items-center justify-center p-0 sm:p-6 relative overflow-hidden select-none">
       {/* Ambient Grid Backdrop */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#00ff6603_1px,transparent_1px),linear-gradient(to_bottom,#00ff6603_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#00ff6602_0%,transparent_70%)] pointer-events-none z-0" />
+
+      {/* Gotham Atmospheric Rain Backdrop */}
+      {gothamMode && <GothamRainEffect />}
 
       {/* Floating OS Terminal Chassis */}
       <div className="w-full h-screen sm:h-[82vh] sm:max-w-4xl bg-bg/85 backdrop-blur-md border-0 sm:border border-border/40 sm:rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col z-10 overflow-hidden relative">
@@ -97,7 +116,7 @@ function App() {
           </div>
 
           {/* Dynamic Console Input Prompt */}
-          <InputLine onSubmit={executeCommand} onTabComplete={handleTabComplete} />
+          <InputLine onSubmit={executeCommand} onTabComplete={handleTabComplete} isGotham={gothamMode} />
         </div>
 
         {/* Persistent Touch/Click Command Bar */}
