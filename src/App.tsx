@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useTerminal, ALIAS_MAP } from './hooks/useTerminal';
+import { useTerminal } from './hooks/useTerminal';
 import { GOTHAM_MISSIONS } from './data/portfolio';
 import { BootScreen } from './components/terminal/BootScreen';
 import { InputLine } from './components/terminal/InputLine';
@@ -186,6 +186,7 @@ function App() {
   const [isMobileViewport, setIsMobileViewport] = useState<boolean>(() => {
     return typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
   });
+  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleResize = () => {
@@ -195,29 +196,48 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Auto-scroll logic targeting the top of reading-heavy layouts
+  // Parallax mouse tracker (active only in civilian LNK OS mode)
+  useEffect(() => {
+    if (activeProtocol) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientWidth, clientHeight } = document.documentElement;
+      const normX = (e.clientX / (clientWidth || 1)) - 0.5;
+      const normY = (e.clientY / (clientHeight || 1)) - 0.5;
+      setMouseOffset({ x: normX, y: normY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [activeProtocol]);
+
+  // Generic height-based auto-scroll logic
   useEffect(() => {
     if (history.length === 0 || !scrollContainerRef.current) return;
     
     const lastItem = history[history.length - 1];
-    const rawCmd = lastItem.command ? lastItem.command.trim().split(/\s+/)[0].toLowerCase() : '';
-    const resolvedCmd = ALIAS_MAP[rawCmd] || rawCmd;
-
-    const isReadingCommand = (
-      resolvedCmd === 'resume' ||
-      resolvedCmd === 'projects' ||
-      resolvedCmd === 'journey'
-    );
-
-    if (isReadingCommand) {
-      const element = document.getElementById(`log-${lastItem.id}`);
-      if (element) {
-        scrollContainerRef.current.scrollTo({
-          top: element.offsetTop - 16,
-          behavior: 'smooth'
-        });
-        return;
-      }
+    const element = document.getElementById(`log-${lastItem.id}`);
+    
+    if (element) {
+      const timer = setTimeout(() => {
+        if (!scrollContainerRef.current || !element) return;
+        
+        const elementHeight = element.offsetHeight;
+        const containerHeight = scrollContainerRef.current.clientHeight;
+        
+        // If the output height is greater than 200px or occupies >40% of the visible viewport,
+        // we scroll the container to align at the top of the block.
+        if (elementHeight > 200 || elementHeight > containerHeight * 0.4) {
+          scrollContainerRef.current.scrollTo({
+            top: element.offsetTop - 16,
+            behavior: 'smooth'
+          });
+        } else {
+          scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+      }, 50);
+      
+      return () => clearTimeout(timer);
     }
 
     scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
@@ -485,9 +505,39 @@ function App() {
   // 4. Default Standard LNK OS Desktop Layout
   return (
     <div className="min-h-screen bg-[#07090e] flex items-center justify-center p-0 sm:p-6 relative overflow-hidden select-none">
-      {/* Ambient Grid Backdrop */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00ff6603_1px,transparent_1px),linear-gradient(to_bottom,#00ff6603_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#00ff6602_0%,transparent_70%)] pointer-events-none z-0" />
+      {/* Ambient Grid Backdrop (Drifting + Minimal Parallax) */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0 animate-grid-drift"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, var(--accent-color) 1px, transparent 1px),
+            linear-gradient(to bottom, var(--accent-color) 1px, transparent 1px)
+          `,
+          backgroundSize: '32px 32px',
+          opacity: 0.035,
+          transform: `translate(${mouseOffset.x * 4}px, ${mouseOffset.y * 4}px)`,
+          transition: 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+        }}
+      />
+      
+      {/* Theme-Colored Ambient Glow (Pulse Breathing + Greater Parallax) */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0 animate-glow-pulse"
+        style={{
+          backgroundImage: `radial-gradient(circle at center, var(--accent-color) 0%, transparent 68%)`,
+          transform: `translate(${mouseOffset.x * 12}px, ${mouseOffset.y * 12}px)`,
+          transition: 'transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+        }}
+      />
+      
+      {/* Extremely low-opacity Cathode Scanlines overlay */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0 opacity-[0.012]"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%)',
+          backgroundSize: '100% 4px'
+        }}
+      />
 
       {/* Floating OS Terminal Chassis */}
       <div className="w-full h-screen sm:h-[82vh] sm:max-w-4xl bg-bg/85 backdrop-blur-md border-0 sm:border border-border/40 sm:rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col z-10 overflow-hidden relative">

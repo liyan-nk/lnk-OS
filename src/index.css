@@ -180,3 +180,34 @@ html {
   pointer-events: none;
   z-index: 9999;
 }
+
+/* Drift animation for the ambient background grid */
+@keyframes ambient-grid-drift {
+  0% {
+    background-position: 0px 0px;
+  }
+  100% {
+    background-position: 32px 32px;
+  }
+}
+
+.animate-grid-drift {
+  animation: ambient-grid-drift 25s linear infinite;
+}
+
+/* Ambient glow breathing animation */
+@keyframes ambient-glow-pulse {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.22;
+    transform: scale(1.05);
+  }
+}
+
+.animate-glow-pulse {
+  animation: ambient-glow-pulse 10s ease-in-out infinite;
+}
+
