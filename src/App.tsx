@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTerminal } from './hooks/useTerminal';
 import { GOTHAM_MISSIONS } from './data/portfolio';
-import { CustomCursor } from './components/common/CustomCursor';
 import { BootScreen } from './components/terminal/BootScreen';
 import { InputLine } from './components/terminal/InputLine';
 import { GothamBootScreen } from './components/terminal/GothamBootScreen';
@@ -368,8 +367,6 @@ function App() {
   if (activeProtocol) {
     return (
       <div className="min-h-screen h-screen bg-[#04070c] text-[#78909c] font-mono flex flex-col p-4 sm:p-5 relative overflow-hidden select-none">
-        {/* Custom Cursor Overlay */}
-        <CustomCursor activeProtocol={activeProtocol} protocolBooting={protocolBooting} />
         {/* Fullscreen low-intensity canvas rain backdrop */}
         <GothamRainEffect />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#c5a05902_1px,transparent_1px),linear-gradient(to_bottom,#c5a05902_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0" />
@@ -508,8 +505,6 @@ function App() {
   // 4. Default Standard LNK OS Desktop Layout
   return (
     <div className="min-h-screen bg-[#07090e] flex items-center justify-center p-0 sm:p-6 relative overflow-hidden select-none">
-      {/* Custom Cursor Overlay */}
-      <CustomCursor activeProtocol={activeProtocol} protocolBooting={protocolBooting} />
 
       {/* Ambient Grid Backdrop (Drifting + Minimal Parallax) */}
       <div 

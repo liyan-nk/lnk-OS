@@ -800,7 +800,7 @@ export const commandRegistry: Record<string, () => React.ReactNode> = {
             <span className="text-[#c5a059] font-bold block mb-1.5 uppercase tracking-wider text-[10px] border-b border-[#c5a059]/20 pb-0.5">// System</span>
             <div className="space-y-1 pl-2">
               <p>  <CommandLink command="neofetch">neofetch</CommandLink>   - Operator identity & grid diagnostics</p>
-              <p>  <CommandLink command="alfred">alfred</CommandLink> / <CommandLink command="wayne">wayne</CommandLink>     - Secure connection teardown & exit</p>
+              <p>  <CommandLink command="alfred">alfred</CommandLink>     - Secure connection teardown & exit</p>
             </div>
           </div>
         </div>

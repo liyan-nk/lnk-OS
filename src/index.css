@@ -211,21 +211,6 @@ html {
   animation: ambient-glow-pulse 8s ease-in-out infinite;
 }
 
-/* Hide default cursor on desktop viewports when custom cursor is active */
-@media (pointer: fine) {
-  body:not(.takeover-glitch-active) {
-    cursor: none !important;
-  }
-  body:not(.takeover-glitch-active) button,
-  body:not(.takeover-glitch-active) a,
-  body:not(.takeover-glitch-active) input,
-  body:not(.takeover-glitch-active) textarea,
-  body:not(.takeover-glitch-active) select,
-  body:not(.takeover-glitch-active) [role="button"],
-  body:not(.takeover-glitch-active) .cursor-pointer {
-    cursor: none !important;
-  }
-}
 
 /* Support for users with prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {

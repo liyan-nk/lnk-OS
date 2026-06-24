@@ -59,7 +59,6 @@ export const ALIAS_MAP: Record<string, string> = {
   education: 'journey',
   cv: 'resume',
   resistance: 'opposition',
-  wayne: 'alfred',
   archives: 'projects'
 };
 
@@ -92,7 +91,7 @@ export function getAutocomplete(input: string, isGotham: boolean = false): Autoc
   const trimmed = input.trim().toLowerCase();
   
   const activeCommands = isGotham
-    ? [...PRIMARY_COMMANDS, 'intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred', 'wayne', 'archives']
+    ? [...PRIMARY_COMMANDS, 'intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred', 'archives']
     : PRIMARY_COMMANDS;
 
   if (!input) {
@@ -178,7 +177,7 @@ function getClosestMatches(input: string, isGotham: boolean = false): string[] {
   let matches: string[] = [];
 
   const activeCommands = isGotham
-    ? [...PRIMARY_COMMANDS, 'intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred', 'wayne', 'archives']
+    ? [...PRIMARY_COMMANDS, 'intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred', 'archives']
     : PRIMARY_COMMANDS;
 
   for (const cmd of activeCommands) {
@@ -377,7 +376,7 @@ export const useTerminal = () => {
     }
 
     // Hide Gotham-only commands if normal mode
-    const GOTHAM_ONLY_COMMANDS = ['intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred', 'wayne', 'archives'];
+    const GOTHAM_ONLY_COMMANDS = ['intel', 'mission', 'opposition', 'resistance', 'arsenal', 'batcomputer', 'oracle', 'status', 'alfred', 'archives'];
     if (GOTHAM_ONLY_COMMANDS.includes(resolvedCommand) && !activeProtocol) {
       const suggestions = getClosestMatches(command, false);
       let outputResult: React.ReactNode;
@@ -652,7 +651,6 @@ export const useTerminal = () => {
                     <div className="flex flex-wrap gap-x-3 gap-y-1">
                       <CommandLink command="neofetch">neofetch</CommandLink>
                       <CommandLink command="alfred">alfred</CommandLink>
-                      <CommandLink command="wayne">wayne</CommandLink>
                     </div>
                   </div>
                 </div>

@@ -25,16 +25,37 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, a
         return;
       }
       const target = e.target as HTMLElement;
-      if (target.closest('button, a, input, select, textarea')) {
+      
+      // If we clicked a button, link, or interactive command chip, restore focus to the input
+      if (target.closest('button, a, [role="button"], .cursor-pointer')) {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 50);
         return;
       }
+      
+      if (target.closest('input, select, textarea')) {
+        return;
+      }
+      
       inputRef.current?.focus();
     };
+
+    const handleExecuteRefocus = () => {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+    };
+
     document.addEventListener('click', handleGlobalClick);
+    window.addEventListener('lnk-os-execute', handleExecuteRefocus);
+    
+    // Auto-focus on mount
     inputRef.current?.focus();
 
     return () => {
       document.removeEventListener('click', handleGlobalClick);
+      window.removeEventListener('lnk-os-execute', handleExecuteRefocus);
     };
   }, []);
 
@@ -71,6 +92,9 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, a
     if (trimmed) {
       onSubmit(trimmed);
       setInputValue('');
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
     }
   };
 
