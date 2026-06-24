@@ -186,8 +186,6 @@ function App() {
   const [isMobileViewport, setIsMobileViewport] = useState<boolean>(() => {
     return typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
   });
-  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
-
   useEffect(() => {
     const handleResize = () => {
       setIsMobileViewport(window.innerWidth < 1024);
@@ -198,17 +196,26 @@ function App() {
 
   // Parallax mouse tracker (active only in civilian LNK OS mode)
   useEffect(() => {
-    if (activeProtocol) return;
+    if (activeProtocol) {
+      document.documentElement.style.setProperty('--mouse-x', '0');
+      document.documentElement.style.setProperty('--mouse-y', '0');
+      return;
+    }
 
     const handleMouseMove = (e: MouseEvent) => {
       const { clientWidth, clientHeight } = document.documentElement;
       const normX = (e.clientX / (clientWidth || 1)) - 0.5;
       const normY = (e.clientY / (clientHeight || 1)) - 0.5;
-      setMouseOffset({ x: normX, y: normY });
+      document.documentElement.style.setProperty('--mouse-x', normX.toString());
+      document.documentElement.style.setProperty('--mouse-y', normY.toString());
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.documentElement.style.setProperty('--mouse-x', '0');
+      document.documentElement.style.setProperty('--mouse-y', '0');
+    };
   }, [activeProtocol]);
 
   // Generic height-based auto-scroll logic
@@ -243,11 +250,11 @@ function App() {
     scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
   }, [history]);
 
+  // 1. Manage ambient audio playing/pausing state based on active protocols
   useEffect(() => {
     if (activeProtocol && !protocolBooting && !isMobileViewport) {
       if (!ambientAudioRef.current) {
         try {
-          // NOTE: Temporary audio asset. To be replaced with cinematic ambient score.
           const audio = new Audio('/audio/gotham_ambient.mp3');
           audio.loop = true;
           audio.volume = isMuted ? 0 : 0.12;
@@ -258,8 +265,6 @@ function App() {
         } catch (e) {
           console.warn('Ambient audio failed to initialize:', e);
         }
-      } else {
-        ambientAudioRef.current.volume = isMuted ? 0 : 0.12;
       }
     } else {
       if (ambientAudioRef.current) {
@@ -267,14 +272,24 @@ function App() {
         ambientAudioRef.current = null;
       }
     }
+  }, [activeProtocol, protocolBooting, isMobileViewport]);
 
+  // 2. Manage audio volume updates dynamically (mute toggle)
+  useEffect(() => {
+    if (ambientAudioRef.current) {
+      ambientAudioRef.current.volume = isMuted ? 0 : 0.12;
+    }
+  }, [isMuted]);
+
+  // 3. Absolute unmount safety cleanup (pauses playing audio if App unmounts)
+  useEffect(() => {
     return () => {
-      if (!activeProtocol && ambientAudioRef.current) {
+      if (ambientAudioRef.current) {
         ambientAudioRef.current.pause();
         ambientAudioRef.current = null;
       }
     };
-  }, [activeProtocol, protocolBooting, isMuted]);
+  }, []);
 
   const toggleMute = () => {
     setIsMuted(prev => {
@@ -516,7 +531,7 @@ function App() {
           `,
           backgroundSize: '32px 32px',
           opacity: 0.09,
-          transform: `translate(${mouseOffset.x * 2}px, ${mouseOffset.y * 2}px)`,
+          transform: 'translate(calc(var(--mouse-x, 0) * 2px), calc(var(--mouse-y, 0) * 2px))',
           transition: 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
         }}
       />
@@ -526,7 +541,7 @@ function App() {
         className="absolute inset-0 pointer-events-none z-0 animate-glow-pulse"
         style={{
           backgroundImage: `radial-gradient(circle at center, var(--accent-color) 0%, transparent 70%)`,
-          transform: `translate(${mouseOffset.x * 16}px, ${mouseOffset.y * 16}px)`,
+          transform: 'translate(calc(var(--mouse-x, 0) * 16px), calc(var(--mouse-y, 0) * 16px))',
           transition: 'transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
         }}
       />
@@ -546,9 +561,9 @@ function App() {
         <div className="h-10 border-b border-border/30 bg-bg/95 flex items-center justify-between px-4 shrink-0 select-none">
           {/* OS Window Dot Controls */}
           <div className="flex items-center space-x-2 w-1/4">
-            <span className="w-3.5 h-3.5 rounded-full bg-[#ff5f56] border border-[#e0443e] cursor-pointer hover:brightness-95 transition-all" />
-            <span className="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] border border-[#dea123] cursor-pointer hover:brightness-95 transition-all" />
-            <span className="w-3.5 h-3.5 rounded-full bg-[#27c93f] border border-[#1aab29] cursor-pointer hover:brightness-95 transition-all" />
+            <span className="w-3.5 h-3.5 rounded-full bg-[#ff5f56] border border-[#e0443e] hover:brightness-95 transition-all" />
+            <span className="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] border border-[#dea123] hover:brightness-95 transition-all" />
+            <span className="w-3.5 h-3.5 rounded-full bg-[#27c93f] border border-[#1aab29] hover:brightness-95 transition-all" />
           </div>
 
           {/* Window Title */}

@@ -16,6 +16,7 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, a
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
+  const emptyTabCountRef = useRef(0);
 
   const ghostSuggestion = getAutocomplete(inputValue, !!activeProtocol).ghostSuffix;
 
@@ -61,10 +62,29 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, a
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Tab') {
-      e.preventDefault();
-      
+      const trimmedInput = inputValue.trim();
+
+      // 1. Empty Input tab behavior:
+      // - First Tab: prints command discovery suggestions, prevents focus transition.
+      // - Second Tab: allows standard focus navigation (no preventDefault), resets counter.
+      if (!trimmedInput) {
+        if (emptyTabCountRef.current === 0) {
+          e.preventDefault();
+          emptyTabCountRef.current = 1;
+          onTabComplete(inputValue);
+        } else {
+          emptyTabCountRef.current = 0;
+        }
+        return;
+      }
+
+      // Reset empty tab counter when there is input
+      emptyTabCountRef.current = 0;
+
+      // 2. Autocomplete ghost suggestion check
       const { completedValue } = getAutocomplete(inputValue, !!activeProtocol);
       if (completedValue) {
+        e.preventDefault();
         setInputValue(completedValue);
         setTimeout(() => {
           if (inputRef.current) {
@@ -74,21 +94,27 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, a
         return;
       }
 
+      // 3. Tab completion command prefix check
       const completed = onTabComplete(inputValue);
       if (completed) {
+        e.preventDefault();
         setInputValue(completed);
         setTimeout(() => {
           if (inputRef.current) {
             inputRef.current.selectionStart = inputRef.current.selectionEnd = completed.length;
           }
         }, 0);
+        return;
       }
+
+      // 4. Content + No Match: Let Tab default key focus movement happen
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = inputValue.trim();
+    emptyTabCountRef.current = 0;
     if (trimmed) {
       onSubmit(trimmed);
       setInputValue('');
@@ -106,7 +132,10 @@ export const InputLine: React.FC<InputLineProps> = ({ onSubmit, onTabComplete, a
           ref={inputRef}
           type="text"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            emptyTabCountRef.current = 0;
+          }}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
